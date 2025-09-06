@@ -13,6 +13,7 @@ Le RBAC est au cœur de l'architecture de l'application. Il garantit que les uti
 3.  **Rendu Conditionnel** : Les composants utilisent l'objet `user` reçu pour adapter leur affichage et leurs fonctionnalités :
     -   **Navigation (`Sidebar.tsx`)** : Le `Sidebar` utilise une structure de données (`roleLinks`) qui mappe chaque `UserRole` à un ensemble spécifique de liens de navigation. Seuls les liens autorisés pour le rôle de l'utilisateur actuel sont affichés.
     -   **Permissions de Page (`ConsultationsPage.tsx`, `UtilisateursPage.tsx`, etc.)** : Les pages implémentent une logique de rendu conditionnel complexe. Par exemple, un `SUPER_ADMIN` verra une vue agrégée de toutes les données avec un filtre par établissement, tandis qu'un `ADMIN_LOCAL` verra une vue détaillée restreinte à son propre établissement, et un agent `SIH` verra une interface de saisie de données.
+    -   **Filtrage et Vues Analytiques** : Les rôles de supervision (`SUPER_ADMIN`, `MINISTERE_SIS`, `SIS_INRSP`) bénéficient de filtres avancés sur les pages de gestion (Consultations, RAM, Campagnes, etc.). Ces filtres leur permettent de croiser les données par établissement, service, spécialité ou autre critère pertinent, transformant ces pages en de véritables outils d'analyse pour la prise de décision.
     -   **Actions CRUD** : Les boutons "Ajouter", "Modifier", "Supprimer" ne sont affichés que si le rôle de l'utilisateur possède les permissions nécessaires (par exemple, un `MINISTERE_SIS` a un accès en lecture seule et ne verra pas ces boutons).
 
 ## 6.2. Gestion Dynamique des Données et CRUD
@@ -44,3 +45,19 @@ L'application dispose d'un système de notifications pour alerter les utilisateu
     -   Un clic sur l'icône de cloche bascule l'état de visibilité du `NotificationsPanel.tsx`.
     -   Le `Header` passe également la liste complète des notifications et les fonctions de rappel (`onMarkAsRead`, `onMarkAllAsRead`) au `NotificationsPanel`.
 4.  **Mise à Jour de l'État** : Lorsque l'utilisateur clique sur une notification ou sur "Tout marquer comme lu" dans le panneau, les fonctions de rappel sont appelées. Ces fonctions, définies dans `DashboardLayout.tsx`, mettent à jour l'état des notifications. La mise à jour de l'état dans `DashboardLayout` provoque un nouveau rendu des composants enfants (`Header`, `NotificationsPanel`), qui affichent alors l'état de lecture mis à jour.
+
+## 6.4. Modules de Santé Publique Spécifiques
+
+Pour répondre à des besoins critiques de santé publique, des modules spécialisés ont été intégrés :
+
+-   **Surveillance Épidémiologique** : Permet la déclaration en temps réel des maladies à déclaration obligatoire, offrant une vue d'ensemble des foyers épidémiques potentiels.
+-   **Surveillance de la Résistance aux Antimicrobiens (RAM)** : Un module dédié à la collecte de données sur la résistance des bactéries aux antibiotiques. Il suit la pyramide sanitaire, permettant la saisie au niveau local et la centralisation et l'analyse au niveau national (INRSP).
+-   **Gestion des Campagnes** : Fournit des outils pour la planification, la coordination, le suivi de la progression et l'évaluation des campagnes de santé publique (vaccination, sensibilisation, etc.).
+
+## 6.5. Administration de la Plateforme
+
+Les rôles à privilèges élevés (`SUPER_ADMIN`, `ADMIN_LOCAL`) ont accès à des modules spécifiques pour configurer et gérer la plateforme et les établissements.
+
+-   **Gestion des Établissements, Utilisateurs, Services et Spécialités** : Interfaces permettant aux administrateurs de gérer les entités fondamentales du système.
+-   **Gestion des Modules** : Une page stratégique pour le `SUPER_ADMIN` qui permet d'activer ou de désactiver des fonctionnalités complètes (ex: Facturation, Pharmacie) pour chaque établissement. Cela permet une personnalisation fine de l'application en fonction des besoins et des capacités de chaque structure.
+-   **Partage de Données** : Un module pour les `ADMIN_LOCAL` leur permettant de configurer finement les permissions de partage de données de leur établissement avec d'autres, favorisant la collaboration tout en respectant la confidentialité.

@@ -96,7 +96,7 @@ const HospitalisationsPage: React.FC<{ user: User }> = ({ user }) => {
     const { isOpen, openModal, closeModal } = useModal();
     
     const [filters, setFilters] = useState({
-        establishment: user.role === UserRole.SUPER_ADMIN || user.role === UserRole.MINISTERE_SIS ? 'all' : user.establishment,
+        establishment: [UserRole.SUPER_ADMIN, UserRole.MINISTERE_SIS, UserRole.SIS_INRSP].includes(user.role) ? 'all' : user.establishment,
         service: 'all',
         status: 'all',
         search: '',
@@ -164,7 +164,7 @@ const HospitalisationsPage: React.FC<{ user: User }> = ({ user }) => {
 
     /** Données de base utilisées pour peupler les menus déroulants des filtres. */
     const dataForFilters = useMemo(() => {
-        const isSupervisor = user.role === UserRole.SUPER_ADMIN || user.role === UserRole.MINISTERE_SIS;
+        const isSupervisor = [UserRole.SUPER_ADMIN, UserRole.MINISTERE_SIS, UserRole.SIS_INRSP].includes(user.role);
         if (isSupervisor) {
              if (filters.establishment === 'all') return hospitalisations;
              return hospitalisations.filter(h => h.establishment === filters.establishment);
@@ -252,7 +252,7 @@ const HospitalisationsPage: React.FC<{ user: User }> = ({ user }) => {
     return (
         <div>
             <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Gestion des Hospitalisations</h2>
-            {(user.role === UserRole.SUPER_ADMIN || user.role === UserRole.MINISTERE_SIS) ? renderSupervisorView() : renderEstablishmentView()}
+            {[UserRole.SUPER_ADMIN, UserRole.MINISTERE_SIS, UserRole.SIS_INRSP].includes(user.role) ? renderSupervisorView() : renderEstablishmentView()}
             <Modal isOpen={isOpen} onClose={closeModal} title={editingHospitalisation ? "Modifier l'hospitalisation" : "Ajouter une hospitalisation"}>
                 <form onSubmit={handleSave} className="space-y-4">
                     <div>

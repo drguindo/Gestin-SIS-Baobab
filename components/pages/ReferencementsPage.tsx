@@ -11,9 +11,10 @@ import Table from '../ui/Table';
 import Modal from '../ui/Modal';
 import { useModal } from '../../hooks/useModal';
 import SearchInput from '../ui/SearchInput';
-import { PlusIcon, PencilIcon, TrashIcon, EyeIcon } from '../ui/icons';
+// FIX: Import the missing CheckCircleIcon component.
+import { PlusIcon, PencilIcon, TrashIcon, EyeIcon, ClockIcon, ArrowTrendingUpIcon, CheckCircleIcon } from '../ui/icons';
 import Badge from '../ui/Badge';
-import { ClockIcon } from '../ui/icons';
+import StatsCard from '../dashboard/StatsCard';
 
 
 /** Données simulées pour les référencements. */
@@ -21,13 +22,17 @@ const mockReferencements: Referencement[] = [
     { 
         id: 'R001', patientName: 'Aliou Diallo', date: '2024-07-22', 
         originEstablishment: 'CSCOM de Sangha', destinationEstablishment: 'CSRéf de Djenné', 
-        reason: 'Suspicion de fracture compliquée, besoin de radiographie.', status: 'En attente', 
+        reason: 'Suspicion de fracture compliquée, besoin de radiographie.', 
+        service: 'Soins Primaires', specialty: 'Traumatologie',
+        status: 'En attente', 
         updateHistory: [{ status: 'En attente', date: '2024-07-22', updatedBy: 'Fatoumata Coulibaly' }] 
     },
     { 
         id: 'R002', patientName: 'Binta Keita', date: '2024-07-21', 
         originEstablishment: 'CSRéf de Djenné', destinationEstablishment: 'Hôpital Sominé Dolo', 
-        reason: 'Besoin de chirurgie spécialisée (appendicectomie).', status: 'Accepté', 
+        reason: 'Besoin de chirurgie spécialisée (appendicectomie).', 
+        service: 'Médecine Générale', specialty: 'Chirurgie Viscérale',
+        status: 'Accepté', 
         updateHistory: [
             { status: 'En attente', date: '2024-07-21', updatedBy: 'Moussa Diarra' },
             { status: 'Accepté', date: '2024-07-22', updatedBy: 'Dr. Aminata Traoré', notes: 'Patient attendu en chirurgie demain matin.' }
@@ -36,7 +41,9 @@ const mockReferencements: Referencement[] = [
     { 
         id: 'R003', patientName: 'Samba Touré', date: '2024-07-20', 
         originEstablishment: 'Cabinet Médical Étoile', destinationEstablishment: 'Hôpital Sominé Dolo', 
-        reason: 'Urgence cardiologique, suspicion d\'infarctus.', status: 'Transféré', 
+        reason: 'Urgence cardiologique, suspicion d\'infarctus.', 
+        service: 'Consultation Privée', specialty: 'Cardiologie',
+        status: 'Transféré', 
         updateHistory: [
             { status: 'En attente', date: '2024-07-20', updatedBy: 'Dr. Kante' },
             { status: 'Accepté', date: '2024-07-20', updatedBy: 'Dr. Traoré' },
@@ -46,7 +53,9 @@ const mockReferencements: Referencement[] = [
     { 
         id: 'R004', patientName: 'Kadiatou Dembélé', date: '2024-07-19', 
         originEstablishment: 'CSCOM de Sangha', destinationEstablishment: 'CSRéf de Djenné', 
-        reason: 'Complications de grossesse.', status: 'Refusé', 
+        reason: 'Complications de grossesse.', 
+        service: 'Maternité', specialty: 'Gynécologie-Obstétrique',
+        status: 'Refusé', 
         updateHistory: [
             { status: 'En attente', date: '2024-07-19', updatedBy: 'F. Coulibaly' },
             { status: 'Refusé', date: '2024-07-20', updatedBy: 'M. Diarra', notes: 'Manque de place, orienter vers Hôpital S. Dolo.' }
@@ -78,9 +87,14 @@ const ReferencementsPage: React.FC<{ user: User }> = ({ user }) => {
     const { isOpen: isHistoryOpen, openModal: openHistoryModal, closeModal: closeHistoryModal } = useModal();
 
     const [filters, setFilters] = useState({
+        establishment: 'all',
+        service: 'all',
+        specialty: 'all',
         status: 'all',
         search: '',
     });
+
+    const isSupervisor = [UserRole.SUPER_ADMIN, UserRole.MINISTERE_SIS, UserRole.SIS_INRSP].includes(user.role);
 
     const handleFilterChange = useCallback((filterName: string, value: string) => {
         setFilters(prev => ({ ...prev, [filterName]: value }));
@@ -136,6 +150,8 @@ const ReferencementsPage: React.FC<{ user: User }> = ({ user }) => {
                 originEstablishment: user.establishment,
                 destinationEstablishment: formData.get('destinationEstablishment') as string,
                 reason: formData.get('reason') as string,
+                service: formData.get('service') as string,
+                specialty: formData.get('specialty') as string,
                 status: 'En attente',
                 updateHistory: [{ status: 'En attente', date: now, updatedBy: user.name, notes: "Création du référencement." }],
             };
@@ -145,49 +161,103 @@ const ReferencementsPage: React.FC<{ user: User }> = ({ user }) => {
     };
 
     const userVisibleData = useMemo(() => {
-         if (user.role === UserRole.SUPER_ADMIN || user.role === UserRole.MINISTERE_SIS) {
-            return referencements;
-        }
+         if (isSupervisor) return referencements;
         return referencements.filter(r => r.originEstablishment === user.establishment || r.destinationEstablishment === user.establishment);
-    }, [user, referencements]);
+    }, [user, referencements, isSupervisor]);
 
     const filteredData = useMemo(() => {
         return userVisibleData.filter(r =>
-            (r.patientName.toLowerCase().includes(filters.search.toLowerCase()) || r.reason.toLowerCase().includes(filters.search.toLowerCase())) &&
-            (filters.status === 'all' || r.status === filters.status)
+            (isSupervisor ? (filters.establishment === 'all' || r.originEstablishment === filters.establishment || r.destinationEstablishment === filters.establishment) : true) &&
+            (isSupervisor ? (filters.service === 'all' || r.service === filters.service) : true) &&
+            (isSupervisor ? (filters.specialty === 'all' || r.specialty === filters.specialty) : true) &&
+            (filters.status === 'all' || r.status === filters.status) &&
+            (r.patientName.toLowerCase().includes(filters.search.toLowerCase()) || r.reason.toLowerCase().includes(filters.search.toLowerCase()))
         );
-    }, [userVisibleData, filters]);
-
-    const tableHeaders = ["Patient", "Date", "Origine", "Destination", "Statut", "Actions"];
+    }, [userVisibleData, filters, isSupervisor]);
     
-    const tableData = filteredData.map(r => {
-        const canUpdateStatus = r.destinationEstablishment === user.establishment && r.status === 'En attente';
-        const canDelete = r.originEstablishment === user.establishment && r.status === 'En attente';
-
-        return [
-            r.patientName,
-            r.date,
-            r.originEstablishment,
-            r.destinationEstablishment,
+    const renderSupervisorView = () => {
+        const stats = {
+            total: referencements.length,
+            enAttente: referencements.filter(r => r.status === 'En attente').length,
+            acceptes: referencements.filter(r => r.status === 'Accepté' || r.status === 'Transféré').length,
+        };
+        const tableHeaders = ["Patient", "Origine", "Destination", "Service", "Spécialité", "Statut", "Actions"];
+        const tableData = filteredData.map(r => [
+            r.patientName, r.originEstablishment, r.destinationEstablishment, r.service, r.specialty,
             <Badge color={statusColors[r.status]} text={r.status} />,
             <div className="flex items-center space-x-2">
                 <button onClick={() => viewHistory(r)} className="text-blue-500 hover:text-blue-700 p-1" title="Voir l'historique"><EyeIcon className="w-5 h-5" /></button>
-                {canUpdateStatus && <button onClick={() => openEditModal(r)} className="text-yellow-500 hover:text-yellow-700 p-1" title="Mettre à jour le statut"><PencilIcon className="w-5 h-5" /></button>}
-                {canDelete && <button onClick={() => handleDelete(r.id)} className="text-red-500 hover:text-red-700 p-1" title="Supprimer"><TrashIcon className="w-5 h-5" /></button>}
             </div>
-        ];
-    });
+        ]);
 
-    return (
-        <div>
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">Gestion des Référencements</h2>
-                <button onClick={openAddModal} className="flex items-center px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-700">
-                    <PlusIcon className="w-5 h-5 mr-2" />
-                    Initier un référencement
-                </button>
+        const availableServices = useMemo(() => [...new Set(referencements.map(r => r.service))].sort(), [referencements]);
+        const availableSpecialties = useMemo(() => [...new Set(referencements.map(r => r.specialty))].sort(), [referencements]);
+
+        return (
+            <div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <StatsCard title="Total Référencements" value={stats.total} icon={<ArrowTrendingUpIcon className="w-8 h-8" />} color="text-blue-500" />
+                    <StatsCard title="En Attente" value={stats.enAttente} icon={<ClockIcon className="w-8 h-8" />} color="text-yellow-500" />
+                    <StatsCard title="Acceptés / Transférés" value={stats.acceptes} icon={<CheckCircleIcon className="w-8 h-8" />} color="text-green-500" />
+                </div>
+                <Card>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border dark:border-gray-700">
+                        <div>
+                            <label className="text-sm font-medium">Établissement</label>
+                            <select value={filters.establishment} onChange={e => handleFilterChange('establishment', e.target.value)} className="mt-1 w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm">
+                                <option value="all">Tous</option>
+                                {allEstablishments.map(e => <option key={e} value={e}>{e}</option>)}
+                            </select>
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium">Service</label>
+                            <select value={filters.service} onChange={e => handleFilterChange('service', e.target.value)} className="mt-1 w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm">
+                                <option value="all">Tous</option>
+                                {availableServices.map(s => <option key={s} value={s}>{s}</option>)}
+                            </select>
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium">Spécialité</label>
+                            <select value={filters.specialty} onChange={e => handleFilterChange('specialty', e.target.value)} className="mt-1 w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm">
+                                <option value="all">Toutes</option>
+                                {availableSpecialties.map(s => <option key={s} value={s}>{s}</option>)}
+                            </select>
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium">Statut</label>
+                            <select value={filters.status} onChange={e => handleFilterChange('status', e.target.value)} className="mt-1 w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm">
+                                <option value="all">Tous</option>
+                                {Object.keys(statusColors).map(s => <option key={s} value={s}>{s}</option>)}
+                            </select>
+                        </div>
+                        <div className="self-end">
+                            <SearchInput value={filters.search} onChange={e => handleFilterChange('search', e.target.value)} placeholder="Rechercher..." />
+                        </div>
+                    </div>
+                    <Table headers={tableHeaders} data={tableData} />
+                </Card>
             </div>
-            
+        );
+    };
+
+    const renderOperationalView = () => {
+        const tableHeaders = ["Patient", "Date", "Origine", "Destination", "Service", "Statut", "Actions"];
+        const tableData = filteredData.map(r => {
+            const canUpdateStatus = r.destinationEstablishment === user.establishment && r.status === 'En attente';
+            const canDelete = r.originEstablishment === user.establishment && r.status === 'En attente';
+    
+            return [
+                r.patientName, r.date, r.originEstablishment, r.destinationEstablishment, r.service,
+                <Badge color={statusColors[r.status]} text={r.status} />,
+                <div className="flex items-center space-x-2">
+                    <button onClick={() => viewHistory(r)} className="text-blue-500 hover:text-blue-700 p-1" title="Voir l'historique"><EyeIcon className="w-5 h-5" /></button>
+                    {canUpdateStatus && <button onClick={() => openEditModal(r)} className="text-yellow-500 hover:text-yellow-700 p-1" title="Mettre à jour le statut"><PencilIcon className="w-5 h-5" /></button>}
+                    {canDelete && <button onClick={() => handleDelete(r.id)} className="text-red-500 hover:text-red-700 p-1" title="Supprimer"><TrashIcon className="w-5 h-5" /></button>}
+                </div>
+            ];
+        });
+        
+        return (
             <Card>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                     <div>
@@ -204,6 +274,23 @@ const ReferencementsPage: React.FC<{ user: User }> = ({ user }) => {
                 </div>
                 <Table headers={tableHeaders} data={tableData} />
             </Card>
+        );
+    };
+
+
+    return (
+        <div>
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">Gestion des Référencements</h2>
+                {!isSupervisor && (
+                     <button onClick={openAddModal} className="flex items-center px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-700">
+                        <PlusIcon className="w-5 h-5 mr-2" />
+                        Initier un référencement
+                    </button>
+                )}
+            </div>
+            
+            {isSupervisor ? renderSupervisorView() : renderOperationalView()}
 
             <Modal isOpen={isFormOpen} onClose={closeFormModal} title={selectedReferencement ? "Mettre à jour le statut" : "Nouveau Référencement"}>
                 <form onSubmit={handleSave} className="space-y-4">
@@ -235,6 +322,14 @@ const ReferencementsPage: React.FC<{ user: User }> = ({ user }) => {
                                 <select name="destinationEstablishment" id="destinationEstablishment" required className="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm">
                                     {allEstablishments.filter(e => e !== user.establishment).map(e => <option key={e} value={e}>{e}</option>)}
                                 </select>
+                            </div>
+                             <div>
+                                <label htmlFor="service" className="block text-sm font-medium">Service d'origine</label>
+                                <input type="text" name="service" id="service" required className="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm" />
+                            </div>
+                             <div>
+                                <label htmlFor="specialty" className="block text-sm font-medium">Spécialité requise</label>
+                                <input type="text" name="specialty" id="specialty" required className="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm" />
                             </div>
                              <div>
                                 <label htmlFor="reason" className="block text-sm font-medium">Motif du référencement</label>

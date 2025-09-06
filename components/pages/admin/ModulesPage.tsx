@@ -22,10 +22,105 @@ interface Module {
 
 /** Données simulées pour les modules et leurs états d'activation par établissement. */
 const initialModules: Module[] = [
-    { name: "Facturation Avancée", description: "Gestion des assurances et tiers-payants", permissions: { 'Hôpital S. Dolo': true, 'CSRéf Djenné': false, 'Cabinet Étoile': true } },
-    { name: "Gestion de Laboratoire", description: "Intégration des résultats d'analyses", permissions: { 'Hôpital S. Dolo': true, 'CSRéf Djenné': true, 'Cabinet Étoile': false } },
-    { name: "Prise de RDV en Ligne", description: "Permet aux patients de prendre RDV via un portail", permissions: { 'Hôpital S. Dolo': false, 'CSRéf Djenné': false, 'Cabinet Étoile': true } },
-    { name: "Gestion de Pharmacie", description: "Suivi des stocks de médicaments", permissions: { 'Hôpital S. Dolo': true, 'CSRéf Djenné': true, 'Cabinet Étoile': false } },
+    { 
+        name: "Facturation Avancée", 
+        description: "Gestion des assurances et tiers-payants", 
+        permissions: { 
+            'Hôpital Sominé Dolo': true, 
+            'CSRéf de Djenné': false, 
+            'CSCOM de Sangha': false,
+            'Cabinet Médical Étoile': true,
+            'Cabinet Médical Nando': true
+        } 
+    },
+    { 
+        name: "Gestion de Laboratoire", 
+        description: "Intégration des résultats d'analyses", 
+        permissions: { 
+            'Hôpital Sominé Dolo': true, 
+            'CSRéf de Djenné': true, 
+            'CSCOM de Sangha': false,
+            'Cabinet Médical Étoile': false,
+            'Cabinet Médical Nando': false
+        } 
+    },
+    { 
+        name: "Prise de RDV en Ligne", 
+        description: "Permet aux patients de prendre RDV via un portail", 
+        permissions: { 
+            'Hôpital Sominé Dolo': false, 
+            'CSRéf de Djenné': false, 
+            'CSCOM de Sangha': false,
+            'Cabinet Médical Étoile': true,
+            'Cabinet Médical Nando': true
+        } 
+    },
+    { 
+        name: "Gestion de Pharmacie", 
+        description: "Suivi des stocks de médicaments", 
+        permissions: { 
+            'Hôpital Sominé Dolo': true, 
+            'CSRéf de Djenné': true, 
+            'CSCOM de Sangha': true,
+            'Cabinet Médical Étoile': false,
+            'Cabinet Médical Nando': false
+        } 
+    },
+    {
+        name: "Gestion des Référencements",
+        description: "Coordination des transferts de patients",
+        permissions: {
+            'Hôpital Sominé Dolo': true, 
+            'CSRéf de Djenné': true, 
+            'CSCOM de Sangha': true,
+            'Cabinet Médical Étoile': true,
+            'Cabinet Médical Nando': true
+        }
+    },
+    {
+        name: "Surveillance Épidémiologique",
+        description: "Déclaration des maladies à déclaration obligatoire",
+        permissions: {
+            'Hôpital Sominé Dolo': true, 
+            'CSRéf de Djenné': true, 
+            'CSCOM de Sangha': true,
+            'Cabinet Médical Étoile': true,
+            'Cabinet Médical Nando': true
+        }
+    },
+    {
+        name: "Surveillance RAM",
+        description: "Suivi de la Résistance aux Antimicrobiens",
+        permissions: {
+            'Hôpital Sominé Dolo': true, 
+            'CSRéf de Djenné': true, 
+            'CSCOM de Sangha': true,
+            'Cabinet Médical Étoile': true,
+            'Cabinet Médical Nando': true
+        }
+    },
+    {
+        name: "Gestion des Campagnes",
+        description: "Planification et suivi des campagnes de santé",
+        permissions: {
+            'Hôpital Sominé Dolo': true, 
+            'CSRéf de Djenné': true, 
+            'CSCOM de Sangha': true,
+            'Cabinet Médical Étoile': true,
+            'Cabinet Médical Nando': true
+        }
+    },
+     {
+        name: "Gestion des Ressources",
+        description: "Suivi des lits et des équipements médicaux",
+        permissions: {
+            'Hôpital Sominé Dolo': true, 
+            'CSRéf de Djenné': true, 
+            'CSCOM de Sangha': false,
+            'Cabinet Médical Étoile': false,
+            'Cabinet Médical Nando': false
+        }
+    }
 ];
 
 /**
@@ -56,8 +151,19 @@ const ModulesPage: React.FC = () => {
 
     /** Liste des établissements extraite des données du premier module. */
     const establishments = Object.keys(modules[0].permissions);
-    /** En-têtes pour le tableau, incluant les noms des établissements. */
-    const tableHeaders = ["Module", "Description", ...establishments];
+    
+    /** Formatage des noms d'établissements pour les en-têtes de tableau. */
+    const establishmentHeaders = establishments.map(name => {
+        return name
+            .replace("Hôpital Sominé Dolo", "HÔPITAL S. DOLO")
+            .replace("CSRéf de Djenné", "CSRÉF DJENNÉ")
+            .replace("CSCOM de Sangha", "CSCOM SANGHA")
+            .replace("Cabinet Médical Étoile", "CABINET ÉTOILE")
+            .replace("Cabinet Médical Nando", "CABINET NANDO");
+    });
+
+    /** En-têtes pour le tableau, incluant les noms formatés des établissements. */
+    const tableHeaders = ["Module", "Description", ...establishmentHeaders];
 
     /** Données formatées pour le composant Table. */
     const tableData = modules.map((module, moduleIndex) => [

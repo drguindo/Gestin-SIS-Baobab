@@ -120,7 +120,7 @@ const ConsultationsPage: React.FC<{ user: User }> = ({ user }) => {
     const { isOpen, openModal, closeModal } = useModal();
     
     const [filters, setFilters] = useState({
-        establishment: user.role === UserRole.SUPER_ADMIN || user.role === UserRole.MINISTERE_SIS ? 'all' : user.establishment,
+        establishment: [UserRole.SUPER_ADMIN, UserRole.MINISTERE_SIS, UserRole.SIS_INRSP].includes(user.role) ? 'all' : user.establishment,
         service: 'all',
         specialty: 'all',
         doctor: 'all',
@@ -188,7 +188,7 @@ const ConsultationsPage: React.FC<{ user: User }> = ({ user }) => {
      * Pour un superviseur, cela ne renvoie des données que si un établissement est sélectionné.
      */
     const dataForFilters = useMemo(() => {
-        const isSupervisor = user.role === UserRole.SUPER_ADMIN || user.role === UserRole.MINISTERE_SIS;
+        const isSupervisor = [UserRole.SUPER_ADMIN, UserRole.MINISTERE_SIS, UserRole.SIS_INRSP].includes(user.role);
         if (isSupervisor) {
              if (filters.establishment === 'all') return []; // Pas de données pour les filtres si aucun établissement n'est sélectionné
              return consultations.filter(c => c.establishment === filters.establishment);
@@ -200,7 +200,7 @@ const ConsultationsPage: React.FC<{ user: User }> = ({ user }) => {
      * Calcule les données finales à afficher dans le tableau après application de tous les filtres.
      */
     const filteredData = useMemo(() => {
-        const dataToFilter = (user.role === UserRole.SUPER_ADMIN || user.role === UserRole.MINISTERE_SIS) && filters.establishment === 'all'
+        const dataToFilter = [UserRole.SUPER_ADMIN, UserRole.MINISTERE_SIS, UserRole.SIS_INRSP].includes(user.role) && filters.establishment === 'all'
             ? consultations
             : dataForFilters;
 
@@ -286,7 +286,7 @@ const ConsultationsPage: React.FC<{ user: User }> = ({ user }) => {
     return (
         <div>
             <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Gestion des Consultations</h2>
-            {(user.role === UserRole.SUPER_ADMIN || user.role === UserRole.MINISTERE_SIS) ? renderSupervisorView() : renderEstablishmentView()}
+            {[UserRole.SUPER_ADMIN, UserRole.MINISTERE_SIS, UserRole.SIS_INRSP].includes(user.role) ? renderSupervisorView() : renderEstablishmentView()}
             <Modal isOpen={isOpen} onClose={closeModal} title={editingConsultation ? "Modifier la consultation" : "Ajouter une consultation"}>
                 <form onSubmit={handleSave} className="space-y-4">
                     <div>

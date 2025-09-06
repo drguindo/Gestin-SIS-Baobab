@@ -71,7 +71,7 @@ const EpidemiologiePage: React.FC<{ user: User }> = ({ user }) => {
     const { isOpen, openModal, closeModal } = useModal();
     
     const [filters, setFilters] = useState({
-        establishment: user.role === UserRole.SUPER_ADMIN || user.role === UserRole.MINISTERE_SIS ? 'all' : user.establishment,
+        establishment: [UserRole.SUPER_ADMIN, UserRole.MINISTERE_SIS, UserRole.SIS_INRSP].includes(user.role) ? 'all' : user.establishment,
         disease: 'all',
         location: 'all',
         search: '',
@@ -130,7 +130,7 @@ const EpidemiologiePage: React.FC<{ user: User }> = ({ user }) => {
     };
 
     const dataForFilters = useMemo(() => {
-        const isSupervisor = user.role === UserRole.SUPER_ADMIN || user.role === UserRole.MINISTERE_SIS;
+        const isSupervisor = [UserRole.SUPER_ADMIN, UserRole.MINISTERE_SIS, UserRole.SIS_INRSP].includes(user.role);
         if (isSupervisor) {
              if (filters.establishment === 'all') return [];
              return cases.filter(c => c.establishment === filters.establishment);
@@ -139,7 +139,7 @@ const EpidemiologiePage: React.FC<{ user: User }> = ({ user }) => {
     }, [user, cases, filters.establishment]);
     
     const filteredData = useMemo(() => {
-        const dataToFilter = (user.role === UserRole.SUPER_ADMIN || user.role === UserRole.MINISTERE_SIS) && filters.establishment === 'all'
+        const dataToFilter = [UserRole.SUPER_ADMIN, UserRole.MINISTERE_SIS, UserRole.SIS_INRSP].includes(user.role) && filters.establishment === 'all'
             ? cases
             : dataForFilters;
 
@@ -219,7 +219,7 @@ const EpidemiologiePage: React.FC<{ user: User }> = ({ user }) => {
     return (
         <div>
             <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Surveillance Épidémiologique</h2>
-            {(user.role === UserRole.SUPER_ADMIN || user.role === UserRole.MINISTERE_SIS) ? renderSupervisorView() : renderEstablishmentView()}
+            {[UserRole.SUPER_ADMIN, UserRole.MINISTERE_SIS, UserRole.SIS_INRSP].includes(user.role) ? renderSupervisorView() : renderEstablishmentView()}
             <Modal isOpen={isOpen} onClose={closeModal} title={editingCase ? "Modifier la déclaration" : "Déclarer un nouveau cas"}>
                 <form onSubmit={handleSave} className="space-y-4">
                     <div>

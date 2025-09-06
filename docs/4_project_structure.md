@@ -28,6 +28,7 @@ L'organisation des fichiers et des dossiers est conçue pour être intuitive et 
 │   │   │   │   ├── ServicesPage.tsx
 │   │   │   │   ├── SpecialitesPage.tsx
 │   │   │   │   └── UtilisateursPage.tsx
+│   │   │   ├── CampagnesPage.tsx
 │   │   │   ├── ConsultationsPage.tsx
 │   │   │   ├── DashboardPage.tsx
 │   │   │   ├── EpidemiologiePage.tsx
@@ -36,7 +37,8 @@ L'organisation des fichiers et des dossiers est conçue pour être intuitive et 
 │   │   │   ├── PatientsPage.tsx
 │   │   │   ├── RapportsPage.tsx
 │   │   │   ├── ReferencementsPage.tsx
-│   │   │   └── RessourcesPage.tsx
+│   │   │   ├── RessourcesPage.tsx
+│   │   │   └── SurveillanceRAMPage.tsx
 │   │   └── ui/                 # Composants d'UI génériques et réutilisables.
 │   │       ├── Badge.tsx
 │   │       ├── Card.tsx

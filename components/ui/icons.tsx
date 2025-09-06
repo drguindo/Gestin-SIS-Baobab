@@ -258,3 +258,9 @@ export const CheckCircleIcon: React.FC<IconProps> = (props) => (
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
 );
+
+export const BeakerIcon: React.FC<IconProps> = (props) => (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.21 1.043l-3.291 5.035a2.25 2.25 0 00-.21 1.043v2.262a2.25 2.25 0 002.25 2.25h8.512a2.25 2.25 0 002.25-2.25v-2.262a2.25 2.25 0 00-.21-1.043l-3.291-5.035a2.25 2.25 0 01-.21-1.043V3.104M15 3.104a2.25 2.25 0 00-4.5 0M3 12h18" />
+    </svg>
+);

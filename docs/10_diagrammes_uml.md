@@ -13,7 +13,7 @@ Ce diagramme illustre les interactions entre les acteurs et les fonctionnalités
 **Acteurs :**
 -   **Agent Opérationnel** : Personnel de terrain (`SIH`, `SIS_CSCOM`, `SIS_CABINET`).
 -   **Coordinateur de District** : Rôle de supervision locale (`SIS_CSREF`, `ADMIN_LOCAL`).
--   **Superviseur National** : Vue d'ensemble de la plateforme (`SUPER_ADMIN`, `MINISTERE_SIS`).
+-   **Superviseur National** : Vue d'ensemble de la plateforme (`SUPER_ADMIN`, `MINISTERE_SIS`, `SIS_INRSP`).
 
 ```mermaid
 graph TD
@@ -30,21 +30,23 @@ graph TD
         
         subgraph "Santé Publique & Coordination"
             UC6[Déclarer Cas Épidémiologiques]
+            UC_RAM[Surveiller la RAM]
             UC7[Planifier Campagne]
             UC8[Participer à une Campagne]
             UC9[Évaluer Campagne]
         end
         
-        subgraph "Gestion Administrative"
+        subgraph "Gestion Administrative & Supervision"
             UC10[Gérer Facturation]
             UC11[Gérer Utilisateurs Locaux]
             UC12[Superviser Données Globales]
+            UC13[Analyser Données Nationales]
         end
     end
 
-    actor Agent as Agent Opérationnel
-    actor Coordinateur as Coordinateur de District
-    actor Superviseur as Superviseur National
+    actor Agent as "Agent Opérationnel"
+    actor Coordinateur as "Coordinateur de District"
+    actor Superviseur as "Superviseur National"
     
     Coordinateur --|> Agent
     Superviseur --|> Coordinateur
@@ -54,6 +56,7 @@ graph TD
     Agent --> UC3
     Agent --> UC4
     Agent --> UC6
+    Agent --> UC_RAM
     Agent --> UC8
     Agent --> UC10
     
@@ -63,6 +66,9 @@ graph TD
     Coordinateur --> UC11
 
     Superviseur --> UC12
+    Superviseur --> UC13
+    UC13 -.-> UC_RAM : <<include>>
+    UC13 -.-> UC6 : <<include>>
     
     UC5 -.-> UC4 : <<extend>>
     UC8 -.-> UC7 : <<include>>
@@ -94,6 +100,8 @@ classDiagram
     class Referencement {
       +id: string
       +status: string
+      +service: string
+      +specialty: string
     }
     
     class ReferencementUpdate {
@@ -122,6 +130,8 @@ classDiagram
       +id: string
       +nom: string
       +status: string
+      +service: string
+      +specialty: string
     }
     
     class CampaignProgress {
@@ -129,10 +139,25 @@ classDiagram
       +target: number
       +achieved: number
     }
+
+    class RAMCase {
+        +id: string
+        +microorganism: string
+        +antibiotic: string
+        +service: string
+        +specialty: string
+    }
+
+    class ResistanceLevel <<enumeration>> {
+      SENSIBLE
+      INTERMEDIAIRE
+      RESISTANT
+    }
     
     User "1" -- "0..*" Referencement : initie / met à jour
     User "1" -- "0..*" Facture : crée
     User "1" -- "0..*" Campagne : planifie
+    User "1" -- "0..*" RAMCase : déclare / consulte
     
     Referencement "1" *-- "1..*" ReferencementUpdate : a un historique de
     
@@ -141,6 +166,8 @@ classDiagram
     LigneFacture "1" -- "1" ActeMedial : est basée sur
     
     Campagne "1" *-- "1..*" CampaignProgress : a une progression pour
+
+    RAMCase "1" -- "1" ResistanceLevel : a un niveau
 ```
 
 ---
@@ -221,4 +248,36 @@ sequenceDiagram
     activate PageCampSup
     PageCampSup-->>Superviseur: Affiche la campagne avec la barre de progression globale mise à jour
     deactivate PageCampSup
+```
+
+### 10.4.3. Séquence : Flux de Surveillance de la RAM
+
+Ce diagramme modélise le processus de déclaration d'un cas de RAM par un agent de terrain et sa consultation/analyse par un superviseur national.
+
+```mermaid
+sequenceDiagram
+    actor AgentTerrain as "Agent (Hôpital/CSCOM)"
+    participant PageRAMOp as "SurveillanceRAMPage (Opérationnel)"
+    participant PageRAMSup as "SurveillanceRAMPage (INRSP)"
+    actor AgentINRSP as "Chargé SIS (INRSP)"
+
+    AgentTerrain->>PageRAMOp: Clique sur "Déclarer un cas"
+    activate PageRAMOp
+    PageRAMOp->>PageRAMOp: Ouvre le modal de saisie
+    AgentTerrain->>PageRAMOp: Remplit les informations (bactérie, antibiotique, résistance) et enregistre
+    PageRAMOp->>PageRAMOp: Ajoute le nouveau cas de RAM à la liste locale
+    deactivate PageRAMOp
+    
+    Note right of AgentINRSP: Plus tard, pour l'analyse nationale...
+
+    AgentINRSP->>PageRAMSup: Se connecte et consulte la page RAM
+    activate PageRAMSup
+    PageRAMSup-->>AgentINRSP: Affiche la liste consolidée de tous les cas de RAM
+    
+    AgentINRSP->>PageRAMSup: Applique des filtres (par établissement, service, bactérie)
+    activate PageRAMSup
+    PageRAMSup->>PageRAMSup: Met à jour la table avec les données filtrées
+    PageRAMSup-->>AgentINRSP: Affiche les résultats pour analyse
+    deactivate PageRAMSup
+    deactivate PageRAMSup
 ```

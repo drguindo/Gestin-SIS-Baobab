@@ -75,9 +75,25 @@ Chaque fichier dans ce répertoire représente une vue principale de l'applicati
 Un exemple de page complexe avec une logique RBAC avancée.
 -   **Rôle** : Gère tout ce qui concerne les consultations. Affiche différentes vues et fonctionnalités selon que l'utilisateur est un superviseur national, un administrateur local ou un agent de saisie.
 
+### `SurveillanceRAMPage.tsx`
+Un module de santé publique pour le suivi de la résistance aux antimicrobiens.
+-   **Rôle** : Gère la déclaration et la consultation des cas de RAM. Il implémente une logique RBAC où les établissements opérationnels saisissent les données, et les superviseurs (notamment l'INRSP) ont une vue nationale consolidée avec des cartes statistiques et des filtres avancés (par établissement, service, spécialité, etc.) pour l'analyse.
+
+### `CampagnesPage.tsx`
+Un module de coordination pour les campagnes de santé publique.
+-   **Rôle** : Permet la planification, le suivi et l'évaluation des campagnes. Les superviseurs peuvent planifier des campagnes, définir des objectifs par établissement et suivre la progression globale. Les agents de terrain peuvent consulter les campagnes qui les concernent et rapporter leur progression via un modal dédié.
+
+### `ReferencementsPage.tsx`
+Un module pour la coordination des soins inter-établissements.
+-   **Rôle** : Gère le flux de référencement et de contre-référencement. Les agents de terrain peuvent initier des demandes et mettre à jour le statut des demandes reçues. Les superviseurs ont une vue d'ensemble avec des statistiques et des filtres avancés pour analyser les flux de patients. Un modal permet de visualiser l'historique complet d'un référencement.
+
 ### Pages d'Administration (`src/components/pages/admin/`)
 Ces pages sont conçues pour être utilisées par les `SUPER_ADMIN` et `ADMIN_LOCAL`.
 -   **Rôle** : Elles partagent une structure similaire : une liste de données (utilisateurs, services, etc.) affichée dans un tableau, avec des capacités de recherche, de filtrage, d'ajout et de modification. La logique de filtrage et la visibilité des données sont fortement dépendantes du rôle de l'utilisateur.
+
+### `ModulesPage.tsx`
+Le centre de contrôle de la plateforme pour les Super Administrateurs.
+-   **Rôle** : Affiche un tableau matriciel permettant d'activer ou de désactiver des modules fonctionnels (comme la Facturation, la Pharmacie, etc.) pour chaque établissement pilote. Cette page utilise le composant `ToggleSwitch` pour une gestion intuitive des permissions.
 
 ## 7.4. Hooks Personnalisés (`src/hooks/`)
 

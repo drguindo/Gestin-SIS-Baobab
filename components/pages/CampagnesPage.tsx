@@ -20,6 +20,7 @@ import Badge from '../ui/Badge';
 const mockCampagnes: Campagne[] = [
     { 
         id: 'CAMP01', nom: 'Campagne Nationale de Vaccination contre la Polio', type: 'Vaccination', 
+        service: 'Pédiatrie', specialty: 'Vaccinologie',
         coordinatingBody: 'CSRéf de Djenné', dateDebut: '2024-08-01', dateFin: '2024-08-15', 
         targetPopulation: 5000, status: 'En cours',
         progress: [
@@ -29,6 +30,7 @@ const mockCampagnes: Campagne[] = [
     },
     { 
         id: 'CAMP02', nom: 'Sensibilisation au lavage des mains', type: 'Sensibilisation',
+        service: 'Santé Publique', specialty: 'Hygiène Hospitalière',
         coordinatingBody: 'Hôpital Sominé Dolo', dateDebut: '2024-07-10', dateFin: '2024-09-30', 
         targetPopulation: 10000, status: 'En cours',
         progress: [
@@ -39,6 +41,7 @@ const mockCampagnes: Campagne[] = [
     },
     { 
         id: 'CAMP03', nom: 'Dépistage du diabète et de l\'HTA', type: 'Dépistage',
+        service: 'Médecine Interne', specialty: 'Endocrinologie',
         coordinatingBody: 'CSRéf de Djenné', dateDebut: '2024-09-01', dateFin: '2024-09-07', 
         targetPopulation: 800, status: 'Planifiée',
         progress: [
@@ -48,6 +51,7 @@ const mockCampagnes: Campagne[] = [
     },
     { 
         id: 'CAMP04', nom: 'Campagne de vaccination anti-rougeole (2023)', type: 'Vaccination',
+        service: 'Pédiatrie', specialty: 'Vaccinologie',
         coordinatingBody: 'CSRéf de Djenné', dateDebut: '2023-11-01', dateFin: '2023-11-15', 
         targetPopulation: 1500, status: 'Terminée',
         progress: [
@@ -85,11 +89,23 @@ const CampagnesPage: React.FC<{ user: User }> = ({ user }) => {
     const { isOpen: isFormOpen, openModal: openFormModal, closeModal: closeFormModal } = useModal();
     const { isOpen: isReportOpen, openModal: openReportModal, closeModal: closeReportModal } = useModal();
     const { isOpen: isEvalOpen, openModal: openEvalModal, closeModal: closeEvalModal } = useModal();
-    const [searchTerm, setSearchTerm] = useState('');
+    
+    const [filters, setFilters] = useState({
+        establishment: 'all',
+        type: 'all',
+        service: 'all',
+        specialty: 'all',
+        search: '',
+    });
+
     const [reportValue, setReportValue] = useState(0);
     const [formProgress, setFormProgress] = useState<Partial<CampaignProgress>[]>([]);
 
-    const isSupervisor = [UserRole.SIS_CSREF, UserRole.ADMIN_LOCAL, UserRole.SUPER_ADMIN, UserRole.MINISTERE_SIS].includes(user.role);
+    const isSupervisor = [UserRole.SIS_CSREF, UserRole.ADMIN_LOCAL, UserRole.SUPER_ADMIN, UserRole.MINISTERE_SIS, UserRole.SIS_INRSP].includes(user.role);
+
+    const handleFilterChange = useCallback((filterName: string, value: string) => {
+        setFilters(prev => ({ ...prev, [filterName]: value }));
+    }, []);
 
     const openAddModal = useCallback(() => {
         setSelectedCampagne(null);
@@ -131,6 +147,8 @@ const CampagnesPage: React.FC<{ user: User }> = ({ user }) => {
             id: 'CAMP' + String(campagnes.length + 1).padStart(2, '0'),
             nom: formData.get('nom') as string,
             type: formData.get('type') as Campagne['type'],
+            service: formData.get('service') as string,
+            specialty: formData.get('specialty') as string,
             coordinatingBody: user.establishment,
             dateDebut: formData.get('dateDebut') as string,
             dateFin: formData.get('dateFin') as string,
@@ -160,10 +178,13 @@ const CampagnesPage: React.FC<{ user: User }> = ({ user }) => {
 
     const filteredData = useMemo(() => {
         return userVisibleData.filter(c =>
-            c.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            c.type.toLowerCase().includes(searchTerm.toLowerCase())
+            (c.nom.toLowerCase().includes(filters.search.toLowerCase())) &&
+            (filters.establishment === 'all' || c.progress.some(p => p.establishment === filters.establishment)) &&
+            (filters.type === 'all' || c.type === filters.type) &&
+            (filters.service === 'all' || c.service === filters.service) &&
+            (filters.specialty === 'all' || c.specialty === filters.specialty)
         );
-    }, [userVisibleData, searchTerm]);
+    }, [userVisibleData, filters]);
 
     const stats = useMemo(() => ({
         enCours: userVisibleData.filter(c => c.status === 'En cours').length,
@@ -173,6 +194,12 @@ const CampagnesPage: React.FC<{ user: User }> = ({ user }) => {
     
     const renderSupervisorView = () => {
         const tableHeaders = ["Campagne", "Coordinateur", "Progression Globale", "Statut", "Actions"];
+
+        const allParticipatingEstablishments = useMemo(() => [...new Set(campagnes.flatMap(c => c.progress.map(p => p.establishment)))].sort(), [campagnes]);
+        const allTypes = useMemo(() => [...new Set(campagnes.map(c => c.type))].sort(), [campagnes]);
+        const allServices = useMemo(() => [...new Set(campagnes.map(c => c.service))].sort(), [campagnes]);
+        const allSpecialties = useMemo(() => [...new Set(campagnes.map(c => c.specialty))].sort(), [campagnes]);
+
         const tableData = filteredData.map(c => {
             const totalAchieved = c.progress.reduce((sum, p) => sum + p.achieved, 0);
             const totalTarget = c.progress.reduce((sum, p) => sum + p.target, 0);
@@ -190,12 +217,44 @@ const CampagnesPage: React.FC<{ user: User }> = ({ user }) => {
             <Card>
                 <div className="flex justify-between items-center mb-4">
                     <h3 className="text-xl font-semibold">Suivi des campagnes</h3>
-                    <div className="flex items-center space-x-4">
-                        <SearchInput value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="Rechercher une campagne..." />
-                        <button onClick={openAddModal} className="flex items-center px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-700">
-                            <PlusIcon className="w-5 h-5 mr-2" />
-                            Planifier une campagne
-                        </button>
+                    <button onClick={openAddModal} className="flex items-center px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-700">
+                        <PlusIcon className="w-5 h-5 mr-2" />
+                        Planifier une campagne
+                    </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border dark:border-gray-700">
+                    <div>
+                        <label htmlFor="establishment-filter" className="text-sm font-medium text-gray-700 dark:text-gray-300">Établissement</label>
+                        <select id="establishment-filter" value={filters.establishment} onChange={e => handleFilterChange('establishment', e.target.value)} className="mt-1 w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm">
+                            <option value="all">Tous les établissements</option>
+                            {allParticipatingEstablishments.map(e => <option key={e} value={e}>{e}</option>)}
+                        </select>
+                    </div>
+                     <div>
+                        <label htmlFor="type-filter" className="text-sm font-medium text-gray-700 dark:text-gray-300">Type</label>
+                        <select id="type-filter" value={filters.type} onChange={e => handleFilterChange('type', e.target.value)} className="mt-1 w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm">
+                            <option value="all">Tous les types</option>
+                            {allTypes.map(t => <option key={t} value={t}>{t}</option>)}
+                        </select>
+                    </div>
+                     <div>
+                        <label htmlFor="service-filter" className="text-sm font-medium text-gray-700 dark:text-gray-300">Service</label>
+                        <select id="service-filter" value={filters.service} onChange={e => handleFilterChange('service', e.target.value)} className="mt-1 w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm">
+                            <option value="all">Tous les services</option>
+                            {allServices.map(s => <option key={s} value={s}>{s}</option>)}
+                        </select>
+                    </div>
+                     <div>
+                        <label htmlFor="specialty-filter" className="text-sm font-medium text-gray-700 dark:text-gray-300">Spécialité</label>
+                        <select id="specialty-filter" value={filters.specialty} onChange={e => handleFilterChange('specialty', e.target.value)} className="mt-1 w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm">
+                            <option value="all">Toutes les spécialités</option>
+                            {allSpecialties.map(s => <option key={s} value={s}>{s}</option>)}
+                        </select>
+                    </div>
+                    <div className="md:col-span-2">
+                        <label htmlFor="search" className="text-sm font-medium text-gray-700 dark:text-gray-300">Recherche par nom</label>
+                         <SearchInput value={filters.search} onChange={e => handleFilterChange('search', e.target.value)} placeholder="Rechercher une campagne..." />
                     </div>
                 </div>
                 <Table headers={tableHeaders} data={tableData} />
@@ -260,6 +319,16 @@ const CampagnesPage: React.FC<{ user: User }> = ({ user }) => {
                         <div>
                             <label htmlFor="coordinatingBody" className="block text-sm font-medium">Organisme Coordinateur</label>
                             <input type="text" name="coordinatingBody" id="coordinatingBody" value={user.establishment} readOnly className="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 dark:text-gray-300 rounded-md shadow-sm" />
+                        </div>
+                    </div>
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                           <label htmlFor="service" className="block text-sm font-medium">Service Principal</label>
+                           <input type="text" name="service" id="service" required className="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm" />
+                        </div>
+                        <div>
+                           <label htmlFor="specialty" className="block text-sm font-medium">Spécialité Cible</label>
+                           <input type="text" name="specialty" id="specialty" required className="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm" />
                         </div>
                     </div>
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

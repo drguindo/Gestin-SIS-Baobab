@@ -7,7 +7,7 @@
 import React from 'react';
 import type { User } from '../../types';
 import { UserRole } from '../../types';
-import { HospitalIcon, BriefcaseIcon, BuildingIcon, StethoscopeIcon, ShieldCheckIcon } from '../ui/icons';
+import { HospitalIcon, BriefcaseIcon, BuildingIcon, StethoscopeIcon, ShieldCheckIcon, BeakerIcon } from '../ui/icons';
 
 /**
  * Props pour le composant LoginPage.
@@ -29,6 +29,7 @@ interface LoginPageProps {
 const mockUsers: User[] = [
   { id: 1, name: 'Super Admin', role: UserRole.SUPER_ADMIN, establishment: 'Plateforme Nationale SIS' },
   { id: 8, name: 'Superviseur National', role: UserRole.MINISTERE_SIS, establishment: 'Ministère de la Santé' },
+  { id: 9, name: 'Chargé SIS INRSP', role: UserRole.SIS_INRSP, establishment: 'INRSP Bamako' },
   { id: 2, name: 'Admin Local', role: UserRole.ADMIN_LOCAL, establishment: 'Hôpital Sominé Dolo' },
   { id: 3, name: 'Dr. Aminata Traoré', role: UserRole.SIH, establishment: 'Hôpital Sominé Dolo' },
   { id: 4, name: 'Moussa Diarra', role: UserRole.SIS_CSREF, establishment: 'CSRéf de Djenné' },
@@ -50,6 +51,7 @@ const roleConfig = {
     [UserRole.SIS_CSCOM]: { icon: <StethoscopeIcon className="w-8 h-8 text-primary" />, description: "Chargé S.I.S. CSCOM" },
     [UserRole.SIS_CABINET]: { icon: <BriefcaseIcon className="w-8 h-8 text-primary" />, description: "Cabinet Médical Privé" },
     [UserRole.MINISTERE_SIS]: { icon: <ShieldCheckIcon className="w-8 h-8 text-blue-700" />, description: "Supervision Nationale SIS" },
+    [UserRole.SIS_INRSP]: { icon: <BeakerIcon className="w-8 h-8 text-purple-600" />, description: "Centralisation & Surveillance Nationale" },
 }
 
 /**

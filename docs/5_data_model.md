@@ -13,6 +13,7 @@ Définit les rôles possibles qu'un utilisateur peut avoir au sein du système. 
 | `SIS_CSREF` | Agent du Système d'Information Sanitaire (Niveau CSRéf). |
 | `SIS_CSCOM` | Agent du Système d'Information Sanitaire (Niveau CSCOM). |
 | `SIS_CABINET` | Personnel d'un cabinet médical privé. |
+| `SIS_INRSP` | Agent à l'Institut National de Recherche en Santé Publique (Centralisation nationale). |
 | `SUPER_ADMIN` | Super Administrateur avec un accès complet à la plateforme. |
 | `ADMIN_LOCAL` | Administrateur avec des privilèges pour un établissement spécifique. |
 | `MINISTERE_SIS` | Superviseur du Ministère de la Santé (accès en lecture seule). |
@@ -25,6 +26,15 @@ Définit les différents types de notifications dans le système pour un afficha
 | `STOCK` | Notification liée à la gestion des stocks (ex: stock faible). |
 | `ADMISSION` | Notification liée à l'admission d'un patient. |
 | `SYSTEM` | Notification générale du système (ex: maintenance). |
+
+### `ResistanceLevel`
+Définit les niveaux de résistance pour la surveillance de la Résistance aux Antimicrobiens (RAM).
+
+| Valeur | Description |
+|---|---|
+| `SENSIBLE` | Le micro-organisme est sensible à l'antibiotique. |
+| `INTERMEDIAIRE` | Sensibilité intermédiaire. |
+| `RESISTANT` | Le micro-organisme est résistant à l'antibiotique. |
 
 ## 5.2. Interfaces de Données
 
@@ -79,6 +89,55 @@ Représente un cas déclaré pour la surveillance épidémiologique.
 | `caseDate` | `string` | Date de la détection du cas. |
 | `location` | `string` | Localisation du cas au sein de l'établissement. |
 | `establishment`| `string` | Établissement déclarant. |
+
+### `RAMCase`
+Représente un cas déclaré pour la surveillance de la Résistance aux Antimicrobiens (RAM).
+
+| Propriété | Type | Description |
+|---|---|---|
+| `id` | `string` | Identifiant unique du cas. |
+| `microorganism`| `string` | Micro-organisme identifié. |
+| `antibiotic` | `string` | Antibiotique testé. |
+| `resistanceLevel`| `ResistanceLevel`| Niveau de résistance constaté. |
+| `sampleType` | `string` | Type de prélèvement (ex: Sang, Urine). |
+| `service` | `string` | Service où le cas a été identifié. |
+| `specialty` | `string` | Spécialité médicale concernée. |
+| `caseDate` | `string` | Date de la déclaration du cas. |
+| `laboratory` | `string` | Laboratoire ayant effectué l'analyse. |
+| `establishment`| `string` | Établissement déclarant. |
+| `comment` | `string` (optionnel) | Commentaire additionnel. |
+
+### `Referencement`
+Représente un référencement d'un patient entre deux établissements.
+
+| Propriété | Type | Description |
+|---|---|---|
+| `id` | `string` | Identifiant unique du référencement. |
+| `patientName` | `string` | Nom du patient référé. |
+| `date` | `string` | Date de la demande initiale. |
+| `originEstablishment` | `string` | Établissement d'origine. |
+| `destinationEstablishment` | `string` | Établissement de destination. |
+| `reason` | `string` | Motif médical du référencement. |
+| `service` | `string` | Service d'origine du référencement. |
+| `specialty` | `string` | Spécialité médicale requise. |
+| `status` | `'En attente' \| 'Accepté' \| 'Refusé' \| 'Transféré'` | Le statut actuel du référencement. |
+| `updateHistory` | `ReferencementUpdate[]` | Historique des mises à jour de statut. |
+
+### `Campagne`
+Représente une campagne de santé publique.
+
+| Propriété | Type | Description |
+|---|---|---|
+| `id` | `string` | Identifiant unique de la campagne. |
+| `nom` | `string` | Nom de la campagne. |
+| `type` | `'Vaccination' \| 'Sensibilisation' \| 'Dépistage'` | Type de campagne. |
+| `service` | `string` | Service médical principal concerné. |
+| `specialty` | `string` | Spécialité médicale ciblée. |
+| `coordinatingBody` | `string` | Organisme coordinateur. |
+| `dateDebut` | `string` | Date de début de la campagne. |
+| `dateFin` | `string` | Date de fin de la campagne. |
+| `status` | `'Planifiée' \| 'En cours' \| 'Terminée'` | Statut actuel de la campagne. |
+| `progress` | `CampaignProgress[]` | Suivi par établissement participant. |
 
 ### `Notification`
 Structure d'une notification affichée à l'utilisateur.

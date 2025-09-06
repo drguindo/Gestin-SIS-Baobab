@@ -19,6 +19,8 @@ export enum UserRole {
   SIS_CSCOM = 'SIS_CSCOM',
   /** Personnel d'un cabinet médical privé. */
   SIS_CABINET = 'SIS_CABINET',
+  /** Agent du Système d'Information Sanitaire à l'Institut National de Recherche en Santé Publique. Centralisation nationale. */
+  SIS_INRSP = 'SIS_INRSP',
   /** Super Administrateur avec un accès complet à toute la plateforme. */
   SUPER_ADMIN = 'SUPER_ADMIN',
   /** Administrateur local avec des privilèges d'administration pour un établissement spécifique. */
@@ -224,6 +226,10 @@ export interface Referencement {
   destinationEstablishment: string;
   /** Motif médical du référencement. */
   reason: string;
+  /** Service d'origine du référencement. */
+  service: string;
+  /** Spécialité médicale requise. */
+  specialty: string;
   /** Le statut actuel et le plus récent du référencement. */
   status: 'En attente' | 'Accepté' | 'Refusé' | 'Transféré';
   /** Historique des mises à jour de statut pour le suivi et la contre-référence. */
@@ -311,10 +317,47 @@ export interface Campagne {
     id: string;
     nom: string;
     type: 'Vaccination' | 'Sensibilisation' | 'Dépistage';
+    /** Service médical principal concerné par la campagne. */
+    service: string;
+    /** Spécialité médicale ciblée par la campagne. */
+    specialty: string;
     coordinatingBody: string; // Organisme coordinateur (ex: CSRéf)
     dateDebut: string;
     dateFin: string;
     targetPopulation: number; // Cible globale de la campagne
     status: 'Planifiée' | 'En cours' | 'Terminée';
     progress: CampaignProgress[]; // Suivi par établissement participant
+}
+
+/** Niveaux de résistance pour la surveillance RAM. */
+export enum ResistanceLevel {
+  SENSIBLE = 'Sensible',
+  INTERMEDIAIRE = 'Intermédiaire',
+  RESISTANT = 'Résistant',
+}
+
+/** Représente un cas déclaré pour la surveillance de la Résistance aux Antimicrobiens (RAM). */
+export interface RAMCase {
+  /** Identifiant unique du cas. */
+  id: string;
+  /** Micro-organisme identifié. */
+  microorganism: string;
+  /** Antibiotique testé. */
+  antibiotic: string;
+  /** Niveau de résistance constaté. */
+  resistanceLevel: ResistanceLevel;
+  /** Type de prélèvement (ex: Sang, Urine, LCR). */
+  sampleType: string;
+  /** Service où le cas a été identifié. */
+  service: string;
+  /** Spécialité concernée. */
+  specialty: string;
+  /** Date de la déclaration du cas. */
+  caseDate: string;
+  /** Laboratoire ayant effectué l'analyse. */
+  laboratory: string;
+  /** Établissement déclarant. */
+  establishment: string;
+  /** Commentaire optionnel. */
+  comment?: string;
 }

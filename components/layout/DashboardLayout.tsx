@@ -25,6 +25,7 @@ import EpidemiologiePage from '../pages/EpidemiologiePage';
 import ReferencementsPage from '../pages/ReferencementsPage';
 import FacturationPage from '../pages/FacturationPage';
 import CampagnesPage from '../pages/CampagnesPage';
+import SurveillanceRAMPage from '../pages/SurveillanceRAMPage';
 
 /**
  * Props pour le composant DashboardLayout.
@@ -126,6 +127,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ user, onLogout }) => 
         return <PatientsPage />;
       case 'Épidémiologie':
         return <EpidemiologiePage user={user} />;
+      case 'Surveillance RAM':
+        return <SurveillanceRAMPage user={user} />;
       case 'Référencements':
         return <ReferencementsPage user={user} />;
       case 'Facturation':
