@@ -1,3 +1,7 @@
+/**
+ * @file Contient le composant de la page principale du tableau de bord.
+ * Il affiche des statistiques clés et des visualisations de données.
+ */
 
 import React, { useMemo } from 'react';
 import type { User, StatsData, ConsultationDataPoint, EpidemiologyDataPoint } from '../../types';
@@ -6,11 +10,23 @@ import ConsultationsChart from './ConsultationsChart';
 import EpidemiologyChart from './EpidemiologyChart';
 import { UsersIcon, DocumentCheckIcon, BuildingOfficeIcon, ChartBarIcon } from '../ui/icons';
 
+/**
+ * Props pour le composant DashboardPage.
+ * @interface DashboardPageProps
+ */
 interface DashboardPageProps {
+  /** L'objet utilisateur actuellement connecté. */
   user: User;
 }
 
-// Mock data generation
+// NOTE: Les fonctions de génération de données ci-dessous sont des simulations.
+// Dans une application de production, ces données seraient récupérées via des appels API.
+
+/**
+ * Génère des données statistiques simulées.
+ * @param {number} seed - Une valeur pour varier légèrement les données (par ex., l'ID de l'utilisateur).
+ * @returns {StatsData} Un objet de données statistiques.
+ */
 const generateStats = (seed: number): StatsData => ({
   totalPatients: 1500 + seed * 100,
   consultationsToday: 45 + seed * 5,
@@ -18,6 +34,10 @@ const generateStats = (seed: number): StatsData => ({
   occupancyRate: 75 + seed,
 });
 
+/**
+ * Génère des données de consultation simulées pour les 7 derniers jours.
+ * @returns {ConsultationDataPoint[]} Un tableau de points de données.
+ */
 const generateConsultations = (): ConsultationDataPoint[] => {
   return Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
@@ -29,6 +49,10 @@ const generateConsultations = (): ConsultationDataPoint[] => {
   });
 };
 
+/**
+ * Génère des données de répartition épidémiologique simulées.
+ * @returns {EpidemiologyDataPoint[]} Un tableau de points de données pour le diagramme circulaire.
+ */
 const generateEpidemiology = (): EpidemiologyDataPoint[] => ([
     { name: 'Paludisme', value: 400 },
     { name: 'IRA', value: 300 },
@@ -38,9 +62,20 @@ const generateEpidemiology = (): EpidemiologyDataPoint[] => ([
 ]);
 
 
+/**
+ * La page du tableau de bord principal qui sert de page d'accueil après la connexion.
+ * Elle affiche une vue d'ensemble de l'activité de l'établissement à travers
+ * des cartes de statistiques et des graphiques.
+ * Les données sont générées de manière aléatoire et mémorisées avec `useMemo` pour
+ * éviter de les recalculer à chaque rendu, en se basant sur l'ID de l'utilisateur
+ * pour assurer une légère variation entre les profils.
+ *
+ * @param {DashboardPageProps} props - Les props du composant.
+ * @returns {React.ReactElement} La page du tableau de bord.
+ */
 const DashboardPage: React.FC<DashboardPageProps> = ({ user }) => {
   const dashboardData = useMemo(() => {
-    const seed = user.id; // Use user ID to generate slightly different data
+    const seed = user.id; // Utilise l'ID de l'utilisateur pour générer des données légèrement différentes
     return {
       stats: generateStats(seed),
       consultations: generateConsultations(),
@@ -52,7 +87,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ user }) => {
     <div>
       <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Tableau de bord</h2>
       
-      {/* Stats Grid */}
+      {/* Grille de statistiques */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatsCard 
             title="Total Patients" 
@@ -80,7 +115,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ user }) => {
         />
       </div>
 
-      {/* Charts */}
+      {/* Graphiques */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         <div className="lg:col-span-3">
           <ConsultationsChart data={dashboardData.consultations} />

@@ -1,3 +1,8 @@
+/**
+ * @file Contient le composant de la page de gestion des hospitalisations.
+ * Ce composant affiche des vues différentes et des fonctionnalités basées sur le rôle
+ * de l'utilisateur (vue de supervision pour les administrateurs, vue de gestion pour le personnel de l'établissement).
+ */
 
 import React, { useState, useMemo, useCallback } from 'react';
 import type { User, Hospitalisation } from '../../types';
@@ -11,6 +16,7 @@ import { PlusIcon, PencilIcon, TrashIcon, BedIcon } from '../ui/icons';
 import StatsCard from '../dashboard/StatsCard';
 import Badge from '../ui/Badge';
 
+/** Données simulées pour les hospitalisations. */
 const mockHospitalisations: Hospitalisation[] = [
     // Hôpital Sominé Dolo
     { id: 'H001', patientId: 'P001', patientName: 'Moussa Traoré', admissionDate: '2024-07-15', service: 'Chirurgie Générale', status: 'En observation', diagnosis: 'Post-opératoire Appendicectomie', establishment: 'Hôpital Sominé Dolo' },
@@ -31,6 +37,7 @@ const mockHospitalisations: Hospitalisation[] = [
 
 const allEstablishments = [...new Set(mockHospitalisations.map(h => h.establishment))];
 
+/** Mapping des statuts d'hospitalisation à des couleurs pour le composant Badge. */
 const statusColors: { [key in Hospitalisation['status']]: 'green' | 'yellow' | 'red' | 'blue' } = {
     "Stable": "green",
     "En observation": "yellow",
@@ -38,6 +45,10 @@ const statusColors: { [key in Hospitalisation['status']]: 'green' | 'yellow' | '
     "Sorti": "blue"
 };
 
+/**
+ * Un composant réutilisable pour les filtres avancés (service, statut, recherche).
+ * @param {{ data: Hospitalisation[], filters: object, onFilterChange: Function }} props
+ */
 const AdvancedFilters: React.FC<{
     data: Hospitalisation[];
     filters: { service: string; status: string; search: string; };
@@ -70,7 +81,15 @@ const AdvancedFilters: React.FC<{
     );
 };
 
-
+/**
+ * Page pour la gestion des hospitalisations.
+ * Cette page est un exemple clé de l'implémentation du RBAC :
+ * - Les rôles de supervision (SUPER_ADMIN, MINISTERE_SIS) ont une vue d'ensemble de tous les établissements.
+ * - Les rôles opérationnels (SIH, etc.) ont une vue limitée à leur propre établissement, avec des capacités CRUD.
+ *
+ * @param {{ user: User }} props - Les props du composant.
+ * @returns {React.ReactElement} La page de gestion des hospitalisations.
+ */
 const HospitalisationsPage: React.FC<{ user: User }> = ({ user }) => {
     const [hospitalisations, setHospitalisations] = useState<Hospitalisation[]>(mockHospitalisations);
     const [editingHospitalisation, setEditingHospitalisation] = useState<Hospitalisation | null>(null);
@@ -83,10 +102,12 @@ const HospitalisationsPage: React.FC<{ user: User }> = ({ user }) => {
         search: '',
     });
 
+    /** Gère les changements dans les champs de filtre. */
     const handleFilterChange = useCallback((filterName: string, value: string) => {
         setFilters(prev => ({ ...prev, [filterName]: value }));
     }, []);
-
+    
+    /** Gère spécifiquement le changement du filtre d'établissement pour les superviseurs. */
     const handleEstablishmentFilterChange = (value: string) => {
         setFilters({
             establishment: value,
@@ -96,22 +117,26 @@ const HospitalisationsPage: React.FC<{ user: User }> = ({ user }) => {
         });
     };
     
+    /** Ouvre le modal pour modifier une hospitalisation existante. */
     const openEditModal = useCallback((hosp: Hospitalisation) => {
         setEditingHospitalisation(hosp);
         openModal();
     }, [openModal]);
 
+    /** Ouvre le modal pour ajouter une nouvelle hospitalisation. */
     const openAddModal = useCallback(() => {
         setEditingHospitalisation(null);
         openModal();
     }, [openModal]);
 
+    /** Gère la suppression d'une hospitalisation après confirmation. */
     const handleDelete = useCallback((id: string) => {
         if (window.confirm('Êtes-vous sûr de vouloir supprimer cette hospitalisation ?')) {
             setHospitalisations(prev => prev.filter(h => h.id !== id));
         }
     }, []);
 
+    /** Gère la soumission du formulaire d'ajout/modification. */
     const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
@@ -137,6 +162,7 @@ const HospitalisationsPage: React.FC<{ user: User }> = ({ user }) => {
         closeModal();
     };
 
+    /** Données de base utilisées pour peupler les menus déroulants des filtres. */
     const dataForFilters = useMemo(() => {
         const isSupervisor = user.role === UserRole.SUPER_ADMIN || user.role === UserRole.MINISTERE_SIS;
         if (isSupervisor) {
@@ -146,6 +172,7 @@ const HospitalisationsPage: React.FC<{ user: User }> = ({ user }) => {
         return hospitalisations.filter(h => h.establishment === user.establishment);
     }, [user, hospitalisations, filters.establishment]);
     
+    /** Données finales affichées dans le tableau, après application de tous les filtres. */
     const filteredData = useMemo(() => {
         return dataForFilters.filter(h => 
             (h.patientName.toLowerCase().includes(filters.search.toLowerCase()) || h.diagnosis.toLowerCase().includes(filters.search.toLowerCase())) &&
@@ -154,6 +181,7 @@ const HospitalisationsPage: React.FC<{ user: User }> = ({ user }) => {
         );
     }, [dataForFilters, filters]);
 
+    /** Rend la vue pour les rôles de supervision (Super Admin, Ministère). */
     const renderSupervisorView = () => (
         <div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -180,6 +208,7 @@ const HospitalisationsPage: React.FC<{ user: User }> = ({ user }) => {
         </div>
     );
     
+    /** Rend la vue pour les rôles au niveau de l'établissement. */
     const renderEstablishmentView = () => {
         const canEdit = user.role === UserRole.SIH;
         const tableHeaders = ["ID", "Patient", "Admission", "Service", "Statut", "Diagnostic"];

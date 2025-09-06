@@ -1,6 +1,16 @@
+/**
+ * @file Collection de composants d'icônes SVG.
+ * Chaque icône est un composant React fonctionnel qui accepte des props
+ * pour la personnalisation, comme `className`.
+ * Ces icônes sont issues de la bibliothèque Heroicons (https://heroicons.com/).
+ */
 
 import React from 'react';
 
+/**
+ * Type de props commun pour tous les composants d'icônes.
+ * @type IconProps
+ */
 type IconProps = { className?: string };
 
 export const ChartPieIcon: React.FC<IconProps> = (props) => (

@@ -1,3 +1,8 @@
+/**
+ * @file Affiche la structure principale de l'application après la connexion.
+ * Ce composant orchestre l'affichage de la barre latérale (Sidebar), de l'en-tête (Header)
+ * et du contenu de la page active. Il gère également l'état des notifications.
+ */
 
 import React, { useState, useCallback } from 'react';
 import type { User, Notification } from '../../types';
@@ -20,12 +25,21 @@ import EpidemiologiePage from '../pages/EpidemiologiePage';
 import ReferencementsPage from '../pages/ReferencementsPage';
 import FacturationPage from '../pages/FacturationPage';
 
-
+/**
+ * Props pour le composant DashboardLayout.
+ * @interface DashboardLayoutProps
+ */
 interface DashboardLayoutProps {
+  /** L'objet de l'utilisateur actuellement connecté. */
   user: User;
+  /** Fonction de rappel pour gérer la déconnexion de l'utilisateur. */
   onLogout: () => void;
 }
 
+/**
+ * Données de notifications simulées pour la démonstration.
+ * @const {Notification[]}
+ */
 const mockNotifications: Notification[] = [
     { id: 1, type: NotificationType.ADMISSION, title: "Nouvelle admission critique", message: "Patient John Doe admis aux urgences. État critique.", timestamp: "il y a 2 minutes", read: false },
     { id: 2, type: NotificationType.STOCK, title: "Stock de Paracétamol faible", message: "Le stock de Paracétamol 500mg est en dessous du seuil critique (15 boîtes restantes).", timestamp: "il y a 35 minutes", read: false },
@@ -34,24 +48,46 @@ const mockNotifications: Notification[] = [
     { id: 5, type: NotificationType.STOCK, title: "Commande reçue", message: "La commande de matériel chirurgical a été réceptionnée.", timestamp: "hier", read: true },
 ];
 
-
+/**
+ * La disposition principale du tableau de bord après l'authentification.
+ * Il comprend la barre latérale, l'en-tête et la zone de contenu principale. Il gère l'état
+ * de la page active et l'état des notifications (lecture, non-lecture).
+ *
+ * @param {DashboardLayoutProps} props - Les props du composant.
+ * @returns {React.ReactElement} La mise en page du tableau de bord.
+ */
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ user, onLogout }) => {
+  /** État pour la visibilité de la barre latérale sur les appareils mobiles. */
   const [isSidebarOpen, setSidebarOpen] = useState(false);
+  /** État pour suivre la page actuellement affichée dans la zone de contenu. */
   const [activePage, setActivePage] = useState('Tableau de bord');
+  /** État pour gérer la liste des notifications. */
   const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
 
+  /**
+   * Marque une notification spécifique comme lue.
+   * @param {number} id - L'ID de la notification à marquer comme lue.
+   */
   const handleMarkAsRead = useCallback((id: number) => {
     setNotifications(prev => 
       prev.map(n => n.id === id ? { ...n, read: true } : n)
     );
   }, []);
 
+  /**
+   * Marque toutes les notifications comme lues.
+   */
   const handleMarkAllAsRead = useCallback(() => {
     setNotifications(prev => 
       prev.map(n => ({ ...n, read: true }))
     );
   }, []);
 
+  /**
+   * Rend le composant de la page appropriée en fonction de l'état `activePage`.
+   * C'est un simple système de routage côté client basé sur l'état.
+   * @returns {React.ReactElement} Le composant de la page à afficher.
+   */
   const renderContent = () => {
     switch (activePage) {
       case 'Tableau de bord':
@@ -67,7 +103,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ user, onLogout }) => 
       case 'Patients':
         return <PatientsPage />;
       case 'Épidémiologie':
-        // FIX: Pass user prop to EpidemiologiePage component.
         return <EpidemiologiePage user={user} />;
       case 'Référencements':
         return <ReferencementsPage />;

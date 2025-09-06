@@ -1,13 +1,30 @@
+/**
+ * @file Affiche un graphique linéaire montrant l'évolution du nombre
+ * de consultations sur les 7 derniers jours.
+ */
 
 import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import type { ConsultationDataPoint } from '../../types';
 import Card from '../ui/Card';
 
+/**
+ * Props pour le composant ConsultationsChart.
+ * @interface ConsultationsChartProps
+ */
 interface ConsultationsChartProps {
+  /** Un tableau de points de données pour les consultations. */
   data: ConsultationDataPoint[];
 }
 
+/**
+ * Un composant de graphique qui utilise la bibliothèque Recharts pour afficher
+ * un graphique linéaire des consultations récentes. Il est encapsulé dans une
+ * Card pour une apparence cohérente.
+ *
+ * @param {ConsultationsChartProps} props - Les props du composant.
+ * @returns {React.ReactElement} Un graphique linéaire responsive.
+ */
 const ConsultationsChart: React.FC<ConsultationsChartProps> = ({ data }) => {
   return (
     <Card>

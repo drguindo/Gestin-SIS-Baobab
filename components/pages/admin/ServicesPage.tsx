@@ -1,3 +1,7 @@
+/**
+ * @file Contient le composant de la page de gestion des services médicaux.
+ * Permet aux administrateurs de gérer les services (ex: Pédiatrie) au sein des établissements.
+ */
 
 import React, { useState, useMemo } from 'react';
 import Card from '../../ui/Card';
@@ -9,6 +13,7 @@ import { useModal } from '../../../hooks/useModal';
 import type { User, Service } from '../../../types';
 import { UserRole } from '../../../types';
 
+/** Données simulées pour les services médicaux. */
 const initialData: Service[] = [
     { name: "Chirurgie Générale", head: "Dr. Bamba", capacity: 30, unit: "Bloc Opératoire", establishment: "Hôpital Sominé Dolo" },
     { name: "Pédiatrie", head: "Dr. Touré", capacity: 20, unit: "Hospitalisation Pédiatrique", establishment: "Hôpital Sominé Dolo" },
@@ -21,19 +26,30 @@ const initialData: Service[] = [
 
 const allEstablishments = [...new Set(initialData.map(s => s.establishment))];
 
+/** Props pour le composant ServicesPage. */
 interface ServicesPageProps {
   user: User;
 }
 
+/**
+ * Page de gestion des services.
+ * Implémente une logique de filtrage et d'affichage basée sur le rôle de l'utilisateur.
+ * - Super Admin : Voit tous les services et peut filtrer par établissement.
+ * - Admin Local : Voit uniquement les services de son établissement et peut filtrer par unité.
+ *
+ * @param {ServicesPageProps} props - Les props du composant.
+ * @returns {React.ReactElement} La page de gestion des services.
+ */
 const ServicesPage: React.FC<ServicesPageProps> = ({ user }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [services, setServices] = useState<Service[]>(initialData);
     const { isOpen, openModal, closeModal } = useModal();
 
-    // Filters
+    // États pour les filtres.
     const [establishmentFilter, setEstablishmentFilter] = useState(user.role === UserRole.SUPER_ADMIN ? 'all' : user.establishment);
     const [unitFilter, setUnitFilter] = useState('all');
 
+    /** Gère l'ajout d'un nouveau service via le formulaire modal. */
     const handleAddService = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
@@ -48,6 +64,7 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ user }) => {
         closeModal();
     };
 
+    /** Détermine les données de base visibles en fonction du rôle et du filtre d'établissement. */
     const userVisibleData = useMemo(() => {
         if (user.role === UserRole.SUPER_ADMIN) {
             if (establishmentFilter === 'all') return services;
@@ -56,8 +73,10 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ user }) => {
         return services.filter(s => s.establishment === user.establishment);
     }, [user, services, establishmentFilter]);
     
+    /** Calcule les unités uniques pour le filtre de l'Admin Local. */
     const uniqueUnits = useMemo(() => [...new Set(userVisibleData.map(s => s.unit))], [userVisibleData]);
 
+    /** Filtre les données visibles en fonction de la recherche et du filtre d'unité. */
     const filteredData = useMemo(() => {
         return userVisibleData.filter(service =>
             (service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -66,12 +85,13 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ user }) => {
         );
     }, [searchTerm, unitFilter, userVisibleData]);
 
+    /** Définit les en-têtes de tableau en fonction du rôle de l'utilisateur. */
     const tableHeaders = user.role === UserRole.SUPER_ADMIN 
         ? ["Nom du Service", "Chef de Service", "Unité", "Capacité (Lits)", "Établissement", "Actions"]
         : ["Nom du Service", "Chef de Service", "Unité", "Capacité (Lits)", "Actions"];
 
+    /** Formate les données pour l'affichage dans le tableau. */
     const tableData = filteredData.map(service => {
-        // Fix: Explicitly type the array to allow ReactNode elements.
         const commonData: (string | number | React.ReactNode)[] = [
             service.name,
             service.head,

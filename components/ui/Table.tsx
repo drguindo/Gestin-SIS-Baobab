@@ -1,10 +1,31 @@
+/**
+ * @file Fournit un composant de tableau (Table) générique et réutilisable
+ * pour afficher des données tabulaires avec un style cohérent.
+ */
+
 import React from 'react';
 
+/**
+ * Props pour le composant Table.
+ * @interface TableProps
+ */
 interface TableProps {
+  /** Un tableau de chaînes de caractères pour les en-têtes de colonne. */
   headers: string[];
+  /** Un tableau de tableaux (lignes) contenant les données des cellules.
+   * Les cellules peuvent être des chaînes, des nombres ou d'autres composants React.
+   */
   data: (string | React.ReactNode)[][];
 }
 
+/**
+ * Un composant de tableau simple et stylisé avec Tailwind CSS.
+ * Il est conçu pour être flexible et accepter n'importe quel type de données
+ * pour ses cellules, y compris d'autres composants React comme des badges ou des boutons.
+ *
+ * @param {TableProps} props - Les props du composant.
+ * @returns {React.ReactElement} Un tableau HTML stylisé.
+ */
 const Table: React.FC<TableProps> = ({ headers, data }) => {
   return (
     <div className="overflow-x-auto">

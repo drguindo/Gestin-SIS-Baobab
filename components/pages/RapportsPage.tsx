@@ -1,8 +1,25 @@
+/**
+ * @file Contient le composant de la page de génération de rapports.
+ * Actuellement, cette page est une maquette fonctionnelle qui simule
+ * la configuration et la génération de rapports.
+ */
+
 import React from 'react';
 import Card from '../ui/Card';
 import { DownloadIcon } from '../ui/icons';
 
+/**
+ * La page de génération de rapports.
+ * Permet à l'utilisateur de sélectionner le type de rapport et une plage de dates.
+ * La génération du rapport est simulée par une alerte.
+ *
+ * @returns {React.ReactElement} La page de génération de rapports.
+ */
 const RapportsPage: React.FC = () => {
+  /**
+   * Simule la génération et le téléchargement d'un rapport.
+   * @param {React.MouseEvent<HTMLButtonElement>} e - L'événement de clic.
+   */
   const handleGenerateReport = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     alert("Génération du rapport simulée. Le téléchargement commencerait maintenant.");

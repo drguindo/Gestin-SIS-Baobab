@@ -1,3 +1,8 @@
+/**
+ * @file Contient le composant pour la page de gestion des ressources.
+ * Cette page affiche des informations sur les lits d'hôpital et les équipements médicaux.
+ */
+
 import React, { useState, useMemo } from 'react';
 import Card from '../ui/Card';
 import StatsCard from '../dashboard/StatsCard';
@@ -6,11 +11,23 @@ import Badge from '../ui/Badge';
 import { BedIcon, WrenchScrewdriverIcon, CogIcon } from '../ui/icons';
 import SearchInput from '../ui/SearchInput';
 
+/**
+ * La page de gestion des ressources de l'hôpital.
+ * Elle fournit un aperçu de la disponibilité des lits et de l'état des équipements.
+ * Des fonctionnalités de recherche sont disponibles pour chaque tableau.
+ * Les données sont actuellement simulées.
+ *
+ * @returns {React.ReactElement} La page de gestion des ressources.
+ */
 const RessourcesPage: React.FC = () => {
+    /** État pour le terme de recherche dans le tableau des lits. */
     const [bedsSearchTerm, setBedsSearchTerm] = useState('');
+    /** État pour le terme de recherche dans le tableau des équipements. */
     const [equipmentSearchTerm, setEquipmentSearchTerm] = useState('');
 
+    /** En-têtes pour le tableau de gestion des lits. */
     const bedsTableHeaders = ["Service", "Total Lits", "Occupés", "Disponibles", "Taux d'occupation"];
+    /** Données simulées pour la gestion des lits. */
     const bedsTableData = useMemo(() => [
         ["Chirurgie", 30, 25, 5, "83%"],
         ["Pédiatrie", 20, 18, 2, "90%"],
@@ -19,7 +36,9 @@ const RessourcesPage: React.FC = () => {
         ["Cardiologie", 15, 10, 5, "67%"],
     ], []);
 
+    /** En-têtes pour le tableau de gestion des équipements. */
     const equipmentTableHeaders = ["Équipement", "ID", "Service", "Statut", "Prochaine maintenance"];
+    /** Données simulées pour la gestion des équipements. */
     const equipmentTableData = useMemo(() => [
         ["Électrocardiogramme (ECG)", "ECG-01", "Cardiologie", <Badge color="green" text="Actif" />, "01/09/2024"],
         ["Défibrillateur", "DEF-03", "Urgence", <Badge color="green" text="Actif" />, "15/08/2024"],
@@ -28,6 +47,7 @@ const RessourcesPage: React.FC = () => {
         ["Échographe", "ECHO-01", "Maternité", <Badge color="green" text="Actif" />, "20/09/2024"],
     ], []);
 
+    /** Filtre les données des lits en fonction du terme de recherche. */
     const filteredBedsData = useMemo(() => {
         if (!bedsSearchTerm) return bedsTableData;
         return bedsTableData.filter(row =>
@@ -35,6 +55,7 @@ const RessourcesPage: React.FC = () => {
         );
     }, [bedsSearchTerm, bedsTableData]);
 
+    /** Filtre les données des équipements en fonction du terme de recherche. */
     const filteredEquipmentData = useMemo(() => {
         if (!equipmentSearchTerm) return equipmentTableData;
         return equipmentTableData.filter(row =>

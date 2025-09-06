@@ -1,23 +1,42 @@
+/**
+ * @file Ce fichier contient le composant Sidebar (barre latérale) qui gère la navigation principale.
+ * Il affiche dynamiquement les liens de navigation en fonction du rôle de l'utilisateur connecté.
+ */
 
 import React from 'react';
 import type { User } from '../../types';
 import { UserRole } from '../../types';
 import { ChartPieIcon, DocumentTextIcon, UsersIcon, GlobeAltIcon, ArrowTrendingUpIcon, CreditCardIcon, StethoscopeIcon, XMarkIcon, BedIcon, WrenchScrewdriverIcon, DocumentChartBarIcon, BuildingStorefrontIcon, PuzzlePieceIcon, CogIcon, ShareIcon } from '../ui/icons';
 
+/**
+ * Props pour le composant Sidebar.
+ * @interface SidebarProps
+ */
 interface SidebarProps {
+  /** L'objet de l'utilisateur actuellement connecté. */
   user: User;
+  /** État booléen indiquant si la barre latérale est ouverte (pour mobile). */
   isOpen: boolean;
+  /** Fonction pour modifier l'état d'ouverture de la barre latérale. */
   setIsOpen: (isOpen: boolean) => void;
+  /** Le nom de la page actuellement active. */
   activePage: string;
+  /** Fonction pour définir la page active. */
   setActivePage: (page: string) => void;
 }
 
+/** Liens de navigation communs à plusieurs rôles d'utilisateurs. */
 const commonLinks = [
   { name: 'Tableau de bord', icon: <ChartPieIcon className="w-6 h-6" /> },
   { name: 'Consultations', icon: <DocumentTextIcon className="w-6 h-6" /> },
   { name: 'Patients', icon: <UsersIcon className="w-6 h-6" /> },
 ];
 
+/**
+ * Configuration des liens de navigation spécifiques à chaque rôle d'utilisateur.
+ * C'est le cœur du système de contrôle d'accès basé sur les rôles (RBAC) pour la navigation.
+ * @type {Record<UserRole, { name: string; icon: React.ReactNode }[]>}
+ */
 const roleLinks: Record<UserRole, { name: string; icon: React.ReactNode }[]> = {
   [UserRole.SUPER_ADMIN]: [
     { name: 'Tableau de bord', icon: <ChartPieIcon className="w-6 h-6" /> },
@@ -74,12 +93,23 @@ const roleLinks: Record<UserRole, { name: string; icon: React.ReactNode }[]> = {
   ],
 };
 
+/**
+ * Props pour le composant NavLink.
+ * @interface NavLinkProps
+ */
 interface NavLinkProps {
+  /** Fonction à exécuter lors du clic. */
   onClick: () => void;
+  /** Le contenu du lien (icône et texte). */
   children: React.ReactNode;
+  /** Booléen indiquant si le lien est actif. */
   isActive?: boolean;
 }
 
+/**
+ * Un composant de bouton stylisé pour la navigation dans la barre latérale.
+ * @param {NavLinkProps} props - Les props du composant.
+ */
 const NavLink: React.FC<NavLinkProps> = ({ onClick, children, isActive }) => (
     <button
       onClick={onClick}
@@ -93,7 +123,14 @@ const NavLink: React.FC<NavLinkProps> = ({ onClick, children, isActive }) => (
     </button>
 );
 
-
+/**
+ * Le composant de la barre latérale de navigation.
+ * Il est responsive et s'affiche de manière permanente sur les grands écrans
+ * et comme un menu coulissant sur les petits écrans.
+ *
+ * @param {SidebarProps} props - Les props du composant.
+ * @returns {React.ReactElement} Le composant de la barre latérale.
+ */
 const Sidebar: React.FC<SidebarProps> = ({ user, isOpen, setIsOpen, activePage, setActivePage }) => {
   const links = roleLinks[user.role];
 

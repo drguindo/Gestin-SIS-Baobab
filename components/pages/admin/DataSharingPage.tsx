@@ -1,17 +1,26 @@
+/**
+ * @file Contient le composant de la page de gestion du partage de données.
+ * Cette page permet aux Admin Locaux de configurer les permissions de partage de données
+ * de leur établissement avec d'autres.
+ */
+
 import React, { useState } from 'react';
 import Card from '../../ui/Card';
 import Table from '../../ui/Table';
 import ToggleSwitch from '../../ui/ToggleSwitch';
 import { ShareIcon, DocumentDuplicateIcon } from '../../ui/icons';
 
+/** Type pour les permissions de partage de données d'un établissement. */
 type Permissions = {
     patientRecords: boolean;
     epidemiology: boolean;
     statistics: boolean;
 };
 
+/** Type pour l'ensemble des permissions de tous les établissements. */
 type EstablishmentPermissions = Record<string, Permissions>;
 
+/** Données simulées pour les permissions de partage initiales. */
 const initialPermissions: EstablishmentPermissions = {
     'CSRéf de Djenné': { patientRecords: true, epidemiology: true, statistics: false },
     'CSCOM de Sangha': { patientRecords: false, epidemiology: true, statistics: false },
@@ -19,11 +28,26 @@ const initialPermissions: EstablishmentPermissions = {
     'Cabinet Médical Nando': { patientRecords: false, epidemiology: false, statistics: false },
 };
 
+/**
+ * Page de gestion du partage de données.
+ * Permet de définir quelles données (dossiers patients, épidémiologie, statistiques)
+ * l'établissement de l'Admin Local partage avec d'autres établissements.
+ * Inclut également une fonctionnalité de synchronisation pour copier les permissions
+ * d'un établissement à un autre.
+ *
+ * @returns {React.ReactElement} La page de gestion du partage de données.
+ */
 const DataSharingPage: React.FC = () => {
     const [permissions, setPermissions] = useState<EstablishmentPermissions>(initialPermissions);
     const [sourceEstablishment, setSourceEstablishment] = useState<string>('');
     const [targetEstablishments, setTargetEstablishments] = useState<Set<string>>(new Set());
 
+    /**
+     * Met à jour une permission spécifique pour un établissement.
+     * @param {string} establishment - L'établissement dont la permission change.
+     * @param {keyof Permissions} key - Le type de permission à changer.
+     * @param {boolean} value - La nouvelle valeur de la permission.
+     */
     const handlePermissionChange = (establishment: string, key: keyof Permissions, value: boolean) => {
         setPermissions(prev => ({
             ...prev,
@@ -34,6 +58,7 @@ const DataSharingPage: React.FC = () => {
         }));
     };
 
+    /** Gère la sélection des établissements cibles pour la synchronisation. */
     const handleTargetChange = (establishment: string) => {
         setTargetEstablishments(prev => {
             const newTargets = new Set(prev);
@@ -46,6 +71,7 @@ const DataSharingPage: React.FC = () => {
         });
     };
 
+    /** Synchronise les permissions de l'établissement source vers les cibles. */
     const handleSync = () => {
         if (!sourceEstablishment || targetEstablishments.size === 0) return;
 
@@ -60,11 +86,12 @@ const DataSharingPage: React.FC = () => {
         });
 
         alert(`Permissions synchronisées depuis ${sourceEstablishment} vers ${Array.from(targetEstablishments).join(', ')}.`);
-        // Reset selections after sync
+        // Réinitialise les sélections après la synchronisation.
         setSourceEstablishment('');
         setTargetEstablishments(new Set());
     };
 
+    /** Simule la sauvegarde des permissions. */
     const handleSave = () => {
         alert('Permissions sauvegardées avec succès (simulation).');
     }

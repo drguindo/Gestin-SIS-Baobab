@@ -1,3 +1,7 @@
+/**
+ * @file Contient le composant de la page de gestion des utilisateurs.
+ * Permet aux administrateurs de voir, ajouter, et modifier les utilisateurs du système.
+ */
 
 import React, { useState, useMemo } from 'react';
 import Card from '../../ui/Card';
@@ -10,6 +14,7 @@ import { useModal } from '../../../hooks/useModal';
 import { UserRole } from '../../../types';
 import type { User as CurrentUser } from '../../../types';
 
+/** Type définissant la structure d'un objet utilisateur pour la liste de gestion. */
 type User = {
     name: string;
     role: UserRole;
@@ -17,6 +22,7 @@ type User = {
     status: 'Actif' | 'Inactif';
 };
 
+/** Données simulées pour la liste des utilisateurs. */
 const initialData: User[] = [
     { name: "Dr. Aminata Traoré", role: UserRole.SIH, establishment: "Hôpital Sominé Dolo", status: "Actif" },
     { name: "Moussa Diarra", role: UserRole.SIS_CSREF, establishment: "CSRéf de Djenné", status: "Actif" },
@@ -30,19 +36,30 @@ const initialData: User[] = [
 const allEstablishments = [...new Set(initialData.map(u => u.establishment))];
 const allRoles = Object.values(UserRole);
 
+/** Props pour le composant UtilisateursPage. */
 interface UtilisateursPageProps {
+  /** L'utilisateur actuellement connecté. */
   user: CurrentUser;
 }
 
+/**
+ * Page de gestion des utilisateurs du système.
+ * Affiche une liste d'utilisateurs avec des options de filtrage avancées.
+ * La visibilité des données est contrôlée par le rôle de l'utilisateur connecté.
+ *
+ * @param {UtilisateursPageProps} props - Les props du composant.
+ * @returns {React.ReactElement} La page de gestion des utilisateurs.
+ */
 const UtilisateursPage: React.FC<UtilisateursPageProps> = ({ user }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [users, setUsers] = useState<User[]>(initialData);
     const { isOpen, openModal, closeModal } = useModal();
     
-    // Filters
+    // États pour les filtres.
     const [establishmentFilter, setEstablishmentFilter] = useState(user.role === UserRole.SUPER_ADMIN ? 'all' : user.establishment);
     const [roleFilter, setRoleFilter] = useState('all');
 
+    /** Gère l'ajout d'un nouvel utilisateur. */
     const handleAddUser = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
@@ -56,6 +73,7 @@ const UtilisateursPage: React.FC<UtilisateursPageProps> = ({ user }) => {
         closeModal();
     };
 
+    /** Données de base visibles par l'utilisateur connecté. */
     const userVisibleData = useMemo(() => {
         if (user.role === UserRole.SUPER_ADMIN) {
             if (establishmentFilter === 'all') return users;
@@ -64,6 +82,7 @@ const UtilisateursPage: React.FC<UtilisateursPageProps> = ({ user }) => {
         return users.filter(u => u.establishment === user.establishment);
     }, [user, users, establishmentFilter]);
     
+    /** Données finales après application de tous les filtres. */
     const filteredData = useMemo(() => {
         return userVisibleData.filter(u =>
             (u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||

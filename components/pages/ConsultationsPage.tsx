@@ -1,3 +1,9 @@
+/**
+ * @file Contient le composant pour la page de gestion des consultations.
+ * C'est un composant complexe qui illustre une gestion d'accès basée sur les rôles (RBAC)
+ * avec plusieurs niveaux de vue et de permissions.
+ */
+
 import React, { useState, useMemo, useCallback } from 'react';
 import type { User, Consultation } from '../../types';
 import { UserRole } from '../../types';
@@ -10,6 +16,7 @@ import { PlusIcon, PencilIcon, TrashIcon } from '../ui/icons';
 import StatsCard from '../dashboard/StatsCard';
 import { DocumentTextIcon } from '../ui/icons';
 
+/** Données de consultations simulées pour peupler la page. */
 const mockConsultations: Consultation[] = [
     // Hôpital Sominé Dolo (More data)
     { id: 'C001', patientId: 'P001', patientName: 'Moussa Traoré', doctorName: 'Dr. Bamba', date: '2024-07-20', service: 'Chirurgie Générale', specialty: 'Chirurgie Viscérale', establishment: 'Hôpital Sominé Dolo', diagnosis: 'Appendicite' },
@@ -46,7 +53,11 @@ const mockConsultations: Consultation[] = [
 
 const allEstablishments = [...new Set(mockConsultations.map(c => c.establishment))];
 
-// A reusable component for advanced filters
+/**
+ * Un composant réutilisable qui affiche une série de filtres (menus déroulants, recherche)
+ * pour affiner la liste des consultations.
+ * @param {{ data: Consultation[], filters: object, onFilterChange: Function }} props
+ */
 const AdvancedFilters: React.FC<{
     data: Consultation[];
     filters: {
@@ -93,6 +104,16 @@ const AdvancedFilters: React.FC<{
 };
 
 
+/**
+ * La page de gestion des consultations.
+ * Affiche des vues et fonctionnalités conditionnelles basées sur le rôle de l'utilisateur :
+ * - `SUPER_ADMIN` / `MINISTERE_SIS`: Vue de supervision globale avec filtre par établissement.
+ * - `ADMIN_LOCAL`: Vue de tableau de bord détaillée pour son établissement avec filtres avancés.
+ * - Autres rôles (SIH, etc.) : Vue opérationnelle avec fonctionnalités CRUD complètes pour leur établissement.
+ *
+ * @param {{ user: User }} props - Les props du composant.
+ * @returns {React.ReactElement} La page de gestion des consultations.
+ */
 const ConsultationsPage: React.FC<{ user: User }> = ({ user }) => {
     const [consultations, setConsultations] = useState<Consultation[]>(mockConsultations);
     const [editingConsultation, setEditingConsultation] = useState<Consultation | null>(null);
@@ -162,15 +183,22 @@ const ConsultationsPage: React.FC<{ user: User }> = ({ user }) => {
         closeModal();
     };
 
+    /**
+     * Calcule les données de base à utiliser pour les filtres avancés.
+     * Pour un superviseur, cela ne renvoie des données que si un établissement est sélectionné.
+     */
     const dataForFilters = useMemo(() => {
         const isSupervisor = user.role === UserRole.SUPER_ADMIN || user.role === UserRole.MINISTERE_SIS;
         if (isSupervisor) {
-             if (filters.establishment === 'all') return []; // No data for filters if no establishment is selected
+             if (filters.establishment === 'all') return []; // Pas de données pour les filtres si aucun établissement n'est sélectionné
              return consultations.filter(c => c.establishment === filters.establishment);
         }
         return consultations.filter(c => c.establishment === user.establishment);
     }, [user, consultations, filters.establishment]);
     
+    /**
+     * Calcule les données finales à afficher dans le tableau après application de tous les filtres.
+     */
     const filteredData = useMemo(() => {
         const dataToFilter = (user.role === UserRole.SUPER_ADMIN || user.role === UserRole.MINISTERE_SIS) && filters.establishment === 'all'
             ? consultations
@@ -184,6 +212,7 @@ const ConsultationsPage: React.FC<{ user: User }> = ({ user }) => {
         );
     }, [dataForFilters, filters, user.role, consultations]);
 
+    /** Rend la vue pour les rôles de supervision. */
     const renderSupervisorView = () => (
         <div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -210,6 +239,7 @@ const ConsultationsPage: React.FC<{ user: User }> = ({ user }) => {
         </div>
     );
 
+    /** Rend la vue pour les rôles au niveau de l'établissement (Admin Local et opérateurs). */
     const renderEstablishmentView = () => {
         const isOperator = user.role !== UserRole.ADMIN_LOCAL && user.role !== UserRole.SUPER_ADMIN && user.role !== UserRole.MINISTERE_SIS;
         const tableHeaders = isOperator
@@ -279,7 +309,7 @@ const ConsultationsPage: React.FC<{ user: User }> = ({ user }) => {
                         <label htmlFor="specialty" className="block text-sm font-medium">Spécialité</label>
                         <input type="text" name="specialty" id="specialty" defaultValue={editingConsultation?.specialty} required className="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm" />
                     </div>
-                    <div>
+                     <div>
                         <label htmlFor="diagnosis" className="block text-sm font-medium">Diagnostic</label>
                         <textarea name="diagnosis" id="diagnosis" defaultValue={editingConsultation?.diagnosis} required className="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm" />
                     </div>

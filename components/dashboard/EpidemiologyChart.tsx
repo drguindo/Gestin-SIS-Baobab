@@ -1,15 +1,32 @@
+/**
+ * @file Affiche un diagramme circulaire (camembert) montrant la répartition
+ * des principales pathologies ou cas épidémiologiques.
+ */
 
 import React from 'react';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import type { EpidemiologyDataPoint } from '../../types';
 import Card from '../ui/Card';
 
+/**
+ * Props pour le composant EpidemiologyChart.
+ * @interface EpidemiologyChartProps
+ */
 interface EpidemiologyChartProps {
+  /** Un tableau de points de données pour la répartition épidémiologique. */
   data: EpidemiologyDataPoint[];
 }
 
+/** Palette de couleurs pour les segments du diagramme circulaire. */
 const COLORS = ['#0D9488', '#14B8A6', '#2DD4BF', '#5EEAD4', '#99F6E4'];
 
+/**
+ * Un composant de graphique qui utilise la bibliothèque Recharts pour afficher
+ * un diagramme circulaire de la répartition épidémiologique.
+ *
+ * @param {EpidemiologyChartProps} props - Les props du composant.
+ * @returns {React.ReactElement} Un diagramme circulaire responsive.
+ */
 const EpidemiologyChart: React.FC<EpidemiologyChartProps> = ({ data }) => {
   return (
      <Card>

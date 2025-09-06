@@ -1,3 +1,8 @@
+/**
+ * @file Contient le composant pour la page de gestion des patients.
+ * Permet de visualiser, rechercher et ajouter de nouveaux patients.
+ */
+
 import React, { useState, useMemo } from 'react';
 import Card from '../ui/Card';
 import Table from '../ui/Table';
@@ -6,6 +11,10 @@ import { EyeIcon, PencilIcon, PlusIcon } from '../ui/icons';
 import SearchInput from '../ui/SearchInput';
 import { useModal } from '../../hooks/useModal';
 
+/**
+ * Type définissant la structure d'un objet patient.
+ * @type Patient
+ */
 type Patient = {
     id: string;
     name: string;
@@ -13,6 +22,7 @@ type Patient = {
     gender: 'M' | 'F';
 };
 
+/** Données initiales simulées pour la liste des patients. */
 const initialPatients: Patient[] = [
     { id: "P001", name: "Moussa Traoré", birthDate: "15/05/1985", gender: "M" },
     { id: "P002", name: "Awa Diarra", birthDate: "22/11/1992", gender: "F" },
@@ -22,11 +32,26 @@ const initialPatients: Patient[] = [
     { id: "P006", name: "Mariam Sangaré", birthDate: "09/02/2015", gender: "F" },
 ];
 
+/**
+ * La page de gestion des patients.
+ * Affiche une liste de patients avec des options de recherche et d'ajout.
+ * L'ajout d'un patient se fait via une fenêtre modale.
+ * Les actions de visualisation et de modification sont actuellement simulées.
+ *
+ * @returns {React.ReactElement} La page de gestion des patients.
+ */
 const PatientsPage: React.FC = () => {
+    /** État pour le terme de recherche. */
     const [searchTerm, setSearchTerm] = useState('');
+    /** État pour la liste des patients. Initialisé avec les données simulées. */
     const [patients, setPatients] = useState<Patient[]>(initialPatients);
+    /** Hook personnalisé pour gérer l'état de la modale. */
     const { isOpen, openModal, closeModal } = useModal();
 
+    /**
+     * Gère la soumission du formulaire d'ajout d'un nouveau patient.
+     * @param {React.FormEvent<HTMLFormElement>} e - L'événement de soumission du formulaire.
+     */
     const handleAddPatient = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
@@ -40,8 +65,10 @@ const PatientsPage: React.FC = () => {
         closeModal();
     };
 
+    /** En-têtes pour le tableau des patients. */
     const tableHeaders = ["Patient ID", "Nom Complet", "Date de Naissance", "Sexe", "Actions"];
     
+    /** Filtre les données des patients en fonction du terme de recherche. */
     const filteredData = useMemo(() => {
         if (!searchTerm) return patients;
         return patients.filter(patient =>
@@ -50,6 +77,7 @@ const PatientsPage: React.FC = () => {
         );
     }, [searchTerm, patients]);
 
+    /** Formate les données filtrées pour l'affichage dans le composant Table. */
     const tableData = filteredData.map(patient => [
         patient.id,
         patient.name,

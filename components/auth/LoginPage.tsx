@@ -1,13 +1,31 @@
+/**
+ * @file Ce fichier contient le composant de la page de connexion.
+ * Pour des raisons de démonstration, il simule la connexion en permettant à l'utilisateur
+ * de choisir un profil parmi une liste prédéfinie.
+ */
 
 import React from 'react';
 import type { User } from '../../types';
 import { UserRole } from '../../types';
 import { HospitalIcon, BriefcaseIcon, BuildingIcon, StethoscopeIcon, ShieldCheckIcon } from '../ui/icons';
 
+/**
+ * Props pour le composant LoginPage.
+ * @interface LoginPageProps
+ */
 interface LoginPageProps {
+  /**
+   * Fonction de rappel (callback) appelée lorsqu'un utilisateur se connecte avec succès.
+   * @param {User} user - L'objet utilisateur du profil sélectionné.
+   */
   onLogin: (user: User) => void;
 }
 
+/**
+ * Données simulées pour les utilisateurs. Dans une application réelle,
+ * ces informations proviendraient d'une base de données via une API.
+ * @const {User[]}
+ */
 const mockUsers: User[] = [
   { id: 1, name: 'Super Admin', role: UserRole.SUPER_ADMIN, establishment: 'Plateforme Nationale SIS' },
   { id: 8, name: 'Superviseur National', role: UserRole.MINISTERE_SIS, establishment: 'Ministère de la Santé' },
@@ -19,6 +37,11 @@ const mockUsers: User[] = [
   { id: 7, name: 'Dr. Mariam Diallo', role: UserRole.SIS_CABINET, establishment: 'Cabinet Médical Nando' },
 ];
 
+/**
+ * Configuration pour l'affichage des rôles (icône et description).
+ * Associe chaque `UserRole` à des éléments visuels pour une meilleure expérience utilisateur.
+ * @const
+ */
 const roleConfig = {
     [UserRole.SUPER_ADMIN]: { icon: <ShieldCheckIcon className="w-8 h-8 text-primary" />, description: "Administration totale de la plateforme" },
     [UserRole.ADMIN_LOCAL]: { icon: <ShieldCheckIcon className="w-8 h-8 text-yellow-500" />, description: "Administration de l'établissement" },
@@ -29,6 +52,14 @@ const roleConfig = {
     [UserRole.MINISTERE_SIS]: { icon: <ShieldCheckIcon className="w-8 h-8 text-blue-700" />, description: "Supervision Nationale SIS" },
 }
 
+/**
+ * Affiche l'écran de connexion où l'utilisateur peut sélectionner un profil de démonstration.
+ * Chaque profil est présenté sous forme de carte avec des informations claires sur le rôle
+ * et l'établissement. Un clic sur "Se connecter" déclenche la fonction `onLogin` du parent.
+ *
+ * @param {LoginPageProps} props - Les props du composant.
+ * @returns {React.ReactElement} La page de sélection de profil.
+ */
 const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 p-4">

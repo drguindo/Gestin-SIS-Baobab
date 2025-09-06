@@ -1,3 +1,7 @@
+/**
+ * @file Contient le composant de la page de gestion des spécialités médicales.
+ * Permet aux administrateurs de lier des spécialités à des services existants.
+ */
 
 import React, { useState, useMemo } from 'react';
 import Card from '../../ui/Card';
@@ -9,6 +13,7 @@ import { useModal } from '../../../hooks/useModal';
 import type { User, Specialite } from '../../../types';
 import { UserRole } from '../../../types';
 
+/** Données simulées pour les spécialités. */
 const initialData: Specialite[] = [
     { name: "Cardiologie", linkedService: "Cardiologie", establishment: "Hôpital Sominé Dolo" },
     { name: "Pédiatrie", linkedService: "Pédiatrie", establishment: "Hôpital Sominé Dolo" },
@@ -20,19 +25,29 @@ const initialData: Specialite[] = [
 
 const allEstablishments = [...new Set(initialData.map(s => s.establishment))];
 
+/** Props pour le composant SpecialitesPage. */
 interface SpecialitesPageProps {
   user: User;
 }
 
+/**
+ * Page de gestion des spécialités médicales.
+ * La logique de cette page est très similaire à celle de la page des services,
+ * avec des vues et des filtres adaptés aux rôles des utilisateurs.
+ *
+ * @param {SpecialitesPageProps} props - Les props du composant.
+ * @returns {React.ReactElement} La page de gestion des spécialités.
+ */
 const SpecialitesPage: React.FC<SpecialitesPageProps> = ({ user }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [specialites, setSpecialites] = useState<Specialite[]>(initialData);
     const { isOpen, openModal, closeModal } = useModal();
     
-    // Filters
+    // États pour les filtres
     const [establishmentFilter, setEstablishmentFilter] = useState(user.role === UserRole.SUPER_ADMIN ? 'all' : user.establishment);
     const [serviceFilter, setServiceFilter] = useState('all');
 
+    /** Gère l'ajout d'une nouvelle spécialité. */
     const handleAddSpecialite = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
@@ -45,6 +60,7 @@ const SpecialitesPage: React.FC<SpecialitesPageProps> = ({ user }) => {
         closeModal();
     };
 
+    /** Données visibles par l'utilisateur en fonction de son rôle et des filtres. */
     const userVisibleData = useMemo(() => {
         if (user.role === UserRole.SUPER_ADMIN) {
             if (establishmentFilter === 'all') return specialites;
@@ -55,6 +71,7 @@ const SpecialitesPage: React.FC<SpecialitesPageProps> = ({ user }) => {
     
     const uniqueServices = useMemo(() => [...new Set(userVisibleData.map(s => s.linkedService))], [userVisibleData]);
 
+    /** Données finales filtrées pour l'affichage. */
     const filteredData = useMemo(() => {
         return userVisibleData.filter(spec =>
             (spec.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -63,12 +80,13 @@ const SpecialitesPage: React.FC<SpecialitesPageProps> = ({ user }) => {
         );
     }, [searchTerm, serviceFilter, userVisibleData]);
 
+    /** En-têtes de tableau conditionnels au rôle. */
     const tableHeaders = user.role === UserRole.SUPER_ADMIN
         ? ["Nom de la Spécialité", "Service rattaché", "Établissement", "Actions"]
         : ["Nom de la Spécialité", "Service rattaché", "Actions"];
 
+    /** Données de tableau formatées. */
     const tableData = filteredData.map(spec => {
-        // Fix: Explicitly type the array to allow ReactNode elements.
         const row: (string | React.ReactNode)[] = [
             spec.name,
             spec.linkedService,

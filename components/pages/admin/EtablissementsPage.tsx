@@ -1,3 +1,8 @@
+/**
+ * @file Contient le composant de la page de gestion des établissements de santé.
+ * Cette page est accessible aux administrateurs pour gérer les informations
+ * sur les hôpitaux, cliniques, etc.
+ */
 
 import React, { useState, useMemo } from 'react';
 import Card from '../../ui/Card';
@@ -10,6 +15,7 @@ import { useModal } from '../../../hooks/useModal';
 import type { User } from '../../../types';
 import { UserRole } from '../../../types';
 
+/** Type définissant la structure d'un objet Établissement. */
 type Etablissement = {
     name: string;
     type: string;
@@ -17,6 +23,7 @@ type Etablissement = {
     status: 'Actif' | 'Inactif';
 };
 
+/** Données simulées pour la liste des établissements. */
 const initialData: Etablissement[] = [
     { name: "Hôpital Sominé Dolo", type: "Hôpital Régional", location: "Mopti", status: "Actif" },
     { name: "CSRéf de Djenné", type: "Centre de Référence", location: "Djenné", status: "Actif" },
@@ -26,15 +33,26 @@ const initialData: Etablissement[] = [
     { name: "Hôpital de Gao", type: "Hôpital Régional", location: "Gao", status: "Inactif" },
 ];
 
+/** Props pour le composant EtablissementsPage. */
 interface EtablissementsPageProps {
+  /** L'utilisateur actuellement connecté. */
   user: User;
 }
 
+/**
+ * Page de gestion des établissements.
+ * Permet aux Super Admins de voir et d'ajouter tous les établissements.
+ * Les autres utilisateurs (comme Admin Local) ne voient que leur propre établissement.
+ *
+ * @param {EtablissementsPageProps} props Les props du composant.
+ * @returns {React.ReactElement} La page de gestion des établissements.
+ */
 const EtablissementsPage: React.FC<EtablissementsPageProps> = ({ user }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [etablissements, setEtablissements] = useState<Etablissement[]>(initialData);
     const { isOpen, openModal, closeModal } = useModal();
 
+    /** Gère l'ajout d'un nouvel établissement via le formulaire modal. */
     const handleAddEtablissement = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
@@ -42,12 +60,13 @@ const EtablissementsPage: React.FC<EtablissementsPageProps> = ({ user }) => {
             name: formData.get('name') as string,
             type: formData.get('type') as string,
             location: formData.get('location') as string,
-            status: 'Actif', // Default status
+            status: 'Actif', // Statut par défaut
         };
         setEtablissements(prev => [...prev, newEtablissement]);
         closeModal();
     };
     
+    /** Détermine les données visibles par l'utilisateur en fonction de son rôle. */
     const userVisibleData = useMemo(() => {
         if (user.role === UserRole.SUPER_ADMIN) {
             return etablissements;
@@ -58,6 +77,7 @@ const EtablissementsPage: React.FC<EtablissementsPageProps> = ({ user }) => {
 
     const tableHeaders = ["Nom de l'établissement", "Type", "Localisation", "Statut", "Actions"];
 
+    /** Filtre les données visibles en fonction du terme de recherche. */
     const filteredData = useMemo(() => {
         if (!searchTerm) return userVisibleData;
         return userVisibleData.filter(etab =>

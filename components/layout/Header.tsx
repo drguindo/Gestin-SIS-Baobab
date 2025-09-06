@@ -1,23 +1,53 @@
+/**
+ * @file Ce fichier contient le composant Header (en-tête) de l'application.
+ * Il affiche des informations sur l'utilisateur et l'établissement,
+ * un bouton de déconnexion, et l'icône de notifications avec son panneau.
+ */
 
 import React, { useState, useEffect, useRef } from 'react';
 import type { User, Notification } from '../../types';
 import { LogoutIcon, MenuIcon, BellIcon } from '../ui/icons';
 import NotificationsPanel from './NotificationsPanel';
 
+/**
+ * Props pour le composant Header.
+ * @interface HeaderProps
+ */
 interface HeaderProps {
+  /** L'objet utilisateur actuellement connecté. */
   user: User;
+  /** Fonction de rappel pour la déconnexion. */
   onLogout: () => void;
+  /** Fonction de rappel pour ouvrir le menu latéral sur mobile. */
   onMenuClick: () => void;
+  /** La liste des notifications à afficher. */
   notifications: Notification[];
+  /** Fonction de rappel pour marquer une notification comme lue. */
   onMarkAsRead: (id: number) => void;
+  /** Fonction de rappel pour marquer toutes les notifications comme lues. */
   onMarkAllAsRead: () => void;
 }
 
+/**
+ * Le composant Header est affiché en haut de la page sur l'ensemble de l'application
+ * après la connexion. Il contient des informations contextuelles sur l'utilisateur,
+ * un accès aux notifications et la fonctionnalité de déconnexion.
+ *
+ * @param {HeaderProps} props - Les props du composant.
+ * @returns {React.ReactElement} Le composant d'en-tête.
+ */
 const Header: React.FC<HeaderProps> = ({ user, onLogout, onMenuClick, notifications, onMarkAsRead, onMarkAllAsRead }) => {
+  /** État pour contrôler l'ouverture et la fermeture du panneau de notifications. */
   const [isPanelOpen, setPanelOpen] = useState(false);
+  /** Compte le nombre de notifications non lues pour l'affichage du badge. */
   const unreadCount = notifications.filter(n => !n.read).length;
+  /** Référence au DOM du panneau de notifications pour détecter les clics à l'extérieur. */
   const panelRef = useRef<HTMLDivElement>(null);
 
+  /**
+   * Effet pour gérer la fermeture du panneau de notifications lorsqu'un utilisateur
+   * clique à l'extérieur de celui-ci.
+   */
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
