@@ -3,7 +3,7 @@
  * Il affiche des statistiques clés et des visualisations de données.
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import type { User, StatsData, ConsultationDataPoint, EpidemiologyDataPoint } from '../../types';
 import StatsCard from './StatsCard';
 import ConsultationsChart from './ConsultationsChart';
@@ -28,10 +28,10 @@ interface DashboardPageProps {
  * @returns {StatsData} Un objet de données statistiques.
  */
 const generateStats = (seed: number): StatsData => ({
-  totalPatients: 1500 + seed * 100,
-  consultationsToday: 45 + seed * 5,
-  activeHospitalizations: 80 + seed * 10,
-  occupancyRate: 75 + seed,
+  totalPatients: 1500 + seed * 100 + Math.floor(Math.random() * 20 - 10),
+  consultationsToday: 45 + seed * 5 + Math.floor(Math.random() * 10 - 5),
+  activeHospitalizations: 80 + seed * 10 + Math.floor(Math.random() * 6 - 3),
+  occupancyRate: 75 + seed + Math.floor(Math.random() * 4 - 2),
 });
 
 /**
@@ -43,7 +43,7 @@ const generateConsultations = (): ConsultationDataPoint[] => {
     const d = new Date();
     d.setDate(d.getDate() - (6 - i));
     return {
-      date: d.toLocaleDateString('fr-FR', { weekday: 'short' }),
+      date: d.toLocaleString('fr-FR', { weekday: 'short' }),
       count: Math.floor(Math.random() * 50) + 20,
     };
   });
@@ -74,14 +74,23 @@ const generateEpidemiology = (): EpidemiologyDataPoint[] => ([
  * @returns {React.ReactElement} La page du tableau de bord.
  */
 const DashboardPage: React.FC<DashboardPageProps> = ({ user }) => {
-  const dashboardData = useMemo(() => {
-    const seed = user.id; // Utilise l'ID de l'utilisateur pour générer des données légèrement différentes
+  const [stats, setStats] = useState(() => generateStats(user.id));
+
+  // Simulation du Polling : mise à jour des stats toutes les 5 secondes
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setStats(generateStats(user.id));
+    }, 5000); // 5000 ms = 5 secondes
+
+    return () => clearInterval(intervalId); // Nettoyage à la destruction du composant
+  }, [user.id]);
+
+  const chartData = useMemo(() => {
     return {
-      stats: generateStats(seed),
       consultations: generateConsultations(),
       epidemiology: generateEpidemiology(),
     };
-  }, [user.id]);
+  }, []);
   
   return (
     <div>
@@ -91,25 +100,25 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ user }) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatsCard 
             title="Total Patients" 
-            value={dashboardData.stats.totalPatients.toLocaleString('fr-FR')} 
+            value={stats.totalPatients.toLocaleString('fr-FR')} 
             icon={<UsersIcon className="w-8 h-8"/>}
             color="text-blue-500"
         />
         <StatsCard 
             title="Consultations (jour)" 
-            value={dashboardData.stats.consultationsToday.toLocaleString('fr-FR')}
+            value={stats.consultationsToday.toLocaleString('fr-FR')}
             icon={<DocumentCheckIcon className="w-8 h-8"/>}
             color="text-green-500"
         />
         <StatsCard 
             title="Hospitalisations Actives" 
-            value={dashboardData.stats.activeHospitalizations.toLocaleString('fr-FR')}
+            value={stats.activeHospitalizations.toLocaleString('fr-FR')}
             icon={<BuildingOfficeIcon className="w-8 h-8"/>}
             color="text-yellow-500"
         />
         <StatsCard 
             title="Taux d'occupation" 
-            value={`${dashboardData.stats.occupancyRate}%`}
+            value={`${stats.occupancyRate}%`}
             icon={<ChartBarIcon className="w-8 h-8"/>}
             color="text-red-500"
         />
@@ -118,10 +127,10 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ user }) => {
       {/* Graphiques */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         <div className="lg:col-span-3">
-          <ConsultationsChart data={dashboardData.consultations} />
+          <ConsultationsChart data={chartData.consultations} />
         </div>
         <div className="lg:col-span-2">
-            <EpidemiologyChart data={dashboardData.epidemiology} />
+            <EpidemiologyChart data={chartData.epidemiology} />
         </div>
       </div>
     </div>

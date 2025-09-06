@@ -12,41 +12,44 @@ Cette modélisation garantit que l'outil est pertinent et utilisable à tous les
 
 ### 9.2.1. Premier Échelon : Centre de Santé Communautaire (CSCOM)
 
--   **Rôle Associé** : `SIS_CSCOM` (Agent du Système d'Information Sanitaire - CSCOM)
--   **Description** : C'est le premier point de contact pour les patients. Les activités se concentrent sur les soins primaires, la prévention et la collecte de données de base.
--   **Fonctionnalités Disponibles** :
-    -   **Gestion des Patients** : Création et recherche de dossiers patients.
-    -   **Gestion des Consultations** : Enregistrement des consultations de routine (paludisme simple, IRA, etc.).
+-   **Rôle Associé** : `SIS_CSCOM`
+-   **Description** : Le premier point de contact pour les patients. Les activités se concentrent sur les soins primaires, la prévention et la collecte de données de base.
+-   **Fonctionnalités Clés** :
+    -   **Gestion des Patients & Consultations** : Enregistrement des dossiers et des consultations de routine.
     -   **Hospitalisations de courte durée** : Gestion des mises en observation simples.
-    -   **Surveillance Épidémiologique** : Déclaration des maladies à déclaration obligatoire (MADO) observées.
-    -   **Tableau de Bord** : Vue d'ensemble des activités limitées au CSCOM.
+    -   **Surveillance Épidémiologique** : Déclaration des maladies à déclaration obligatoire (MADO).
+    -   **Référencements (Initiateur)** : Peut **initier un référencement** vers un niveau supérieur (CSRéf ou Hôpital) et suivre son statut (contre-référence).
+    -   **Campagnes de Santé Publique (Participant)** : Visualise les campagnes auxquelles le CSCOM doit participer et peut **rapporter la progression** (ex: nombre d'enfants vaccinés).
 
 ### 9.2.2. Deuxième Échelon : Centre de Santé de Référence (CSRéf)
 
--   **Rôle Associé** : `SIS_CSREF` (Agent du Système d'Information Sanitaire - CSRéf)
--   **Description** : Le CSRéf sert de premier niveau de recours pour les cas référés par les CSCOMs. Il dispose de plus de ressources et d'un plateau technique plus élaboré.
--   **Fonctionnalités Disponibles** :
+-   **Rôle Associé** : `SIS_CSREF`
+-   **Description** : Le CSRéf sert de premier niveau de recours et de coordination de district.
+-   **Fonctionnalités Clés** :
     -   Toutes les fonctionnalités du niveau CSCOM.
-    -   **Gestion des Référencements** (Module) : Gestion des patients référés depuis ou vers d'autres structures.
-    -   **Hospitalisations plus complexes** : Gestion de cas nécessitant un suivi plus long.
+    -   **Référencements (Pivot)** : Peut initier des référencements, mais surtout, peut **recevoir et mettre à jour le statut** des référencements provenant des CSCOMs (accepter/refuser), agissant comme un pivot de coordination.
+    -   **Campagnes de Santé Publique (Coordinateur/Superviseur)** : Peut **planifier de nouvelles campagnes** pour les établissements de son district, définir les objectifs par participant, et **suivre/évaluer** la progression globale en temps réel.
 
 ### 9.2.3. Troisième Échelon : Hôpital
 
--   **Rôle Associé** : `SIH` (Agent du Système d'Information Hospitalier)
--   **Description** : L'hôpital (régional ou de district) est le sommet de la pyramide opérationnelle locale, offrant des soins spécialisés.
--   **Fonctionnalités Disponibles** :
-    -   Toutes les fonctionnalités du niveau CSRéf.
-    -   **Gestion des Ressources** : Suivi en temps réel de la disponibilité des lits et de l'état des équipements médicaux.
-    -   **Génération de Rapports** : Création de rapports d'activité détaillés pour l'établissement.
-    -   **Gestion plus fine des services et spécialités** lors de l'enregistrement des données.
+-   **Rôle Associé** : `SIH`
+-   **Description** : L'hôpital offre des soins spécialisés et gère des cas complexes.
+-   **Fonctionnalités Clés** :
+    -   Toutes les fonctionnalités du niveau CSRéf (sauf la planification de campagnes, qui est un rôle de supervision de district).
+    -   **Référencements (Destination)** : Reçoit et met à jour le statut des cas complexes référés par les niveaux inférieurs.
+    -   **Gestion des Ressources** : Suivi des lits et équipements.
+    -   **Génération de Rapports** : Création de rapports d'activité détaillés.
+    -   **Campagnes de Santé Publique (Participant)** : Participe aux campagnes et rapporte sa progression.
 
 ### 9.2.4. Secteur Privé : Cabinets Médicaux
 
 -   **Rôle Associé** : `SIS_CABINET`
--   **Description** : Les structures privées fonctionnent en parallèle du système public.
--   **Fonctionnalités Disponibles** :
-    -   Fonctionnalités similaires à celles d'un CSCOM ou CSRéf, adaptées à un contexte privé.
-    -   **Facturation** (Module) : Gestion des aspects financiers des consultations et des actes médicaux.
+-   **Description** : Structures privées intégrées dans l'écosystème de santé.
+-   **Fonctionnalités Clés** :
+    -   **Gestion des Patients & Consultations**.
+    -   **Facturation (Module Principal)** : Fonctionnalité clé pour le secteur privé. Permet de **créer des factures détaillées** en recherchant des patients existants, en sélectionnant des actes médicaux prédéfinis avec leurs prix, et en choisissant un mode de paiement.
+    -   **Référencements (Initiateur)** : Peut initier des référencements vers le secteur public.
+    -   **Campagnes de Santé Publique (Participant)** : Peut être inclus dans les campagnes de santé publique et rapporter sa progression.
 
 ---
 
@@ -55,21 +58,19 @@ Cette modélisation garantit que l'outil est pertinent et utilisable à tous les
 ### 9.3.1. Administration Locale
 
 -   **Rôle Associé** : `ADMIN_LOCAL`
--   **Description** : Responsable de la gestion et de la configuration du système pour un établissement spécifique (Hôpital, CSRéf).
--   **Fonctionnalités Disponibles** :
-    -   **Gestion des Utilisateurs** : Création et gestion des comptes utilisateurs pour son établissement.
-    -   **Gestion des Services et Spécialités** : Configuration des services médicaux et des spécialités offertes.
-    -   **Partage de Données** : Configuration des permissions de partage de données avec d'autres établissements.
-    -   **Vue de supervision** des données de son établissement (consultations, hospitalisations, etc.) sans droits de modification directs.
+-   **Description** : Responsable de la configuration du système pour son établissement.
+-   **Fonctionnalités Clés** :
+    -   **Gestion des Utilisateurs, Services & Spécialités** pour son établissement.
+    -   **Partage de Données** : Configuration des permissions de partage.
+    -   **Vue de supervision** des données de son établissement.
+    -   **Campagnes de Santé Publique (Coordinateur)** : Peut, comme un CSRéf, planifier et superviser des campagnes.
 
 ### 9.3.2. Supervision Nationale
 
 -   **Rôles Associés** : `SUPER_ADMIN`, `MINISTERE_SIS`
--   **Description** : Ces rôles ont une vue d'ensemble sur l'ensemble du système, à des fins de supervision, de planification stratégique et de maintenance technique.
--   **Fonctionnalités Disponibles** :
-    -   **Tableau de Bord National** : Agrégation des données de tous les établissements.
-    -   **Supervision des Données** : Accès en lecture seule à toutes les données (consultations, hospitalisations, cas épidémiologiques) avec des filtres puissants par établissement, région, etc. (`MINISTERE_SIS`).
+-   **Description** : Vue d'ensemble sur l'ensemble du système pour la stratégie et la maintenance.
+-   **Fonctionnalités Clés** :
+    -   **Supervision Globale** : Accès en lecture seule à toutes les données agrégées (tableaux de bord, consultations, référencements, campagnes).
     -   **Administration Complète de la Plateforme** (`SUPER_ADMIN`) :
-        -   Gestion de tous les établissements.
-        -   Gestion de tous les utilisateurs, y compris les administrateurs locaux.
-        -   Gestion des modules (activation/désactivation de fonctionnalités pour chaque établissement).
+        -   Gestion de tous les établissements, utilisateurs, et modules.
+        -   Peut superviser toutes les campagnes nationales.

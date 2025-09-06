@@ -4,7 +4,7 @@
  * et du contenu de la page active. Il gère également l'état des notifications.
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import type { User, Notification } from '../../types';
 import { NotificationType } from '../../types';
 import Sidebar from './Sidebar';
@@ -24,6 +24,7 @@ import ConsultationsPage from '../pages/ConsultationsPage';
 import EpidemiologiePage from '../pages/EpidemiologiePage';
 import ReferencementsPage from '../pages/ReferencementsPage';
 import FacturationPage from '../pages/FacturationPage';
+import CampagnesPage from '../pages/CampagnesPage';
 
 /**
  * Props pour le composant DashboardLayout.
@@ -84,6 +85,27 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ user, onLogout }) => 
   }, []);
 
   /**
+   * Simule une notification push en temps réel (type WebSocket).
+   * Ajoute une nouvelle notification après 7 secondes pour démontrer la réactivité.
+   */
+  useEffect(() => {
+    const timer = setTimeout(() => {
+        const newNotification: Notification = {
+            id: Date.now(),
+            type: NotificationType.ADMISSION,
+            title: "ALERTE TEMPS RÉEL (Simulée)",
+            message: "Nouvelle admission critique via le SAMU.",
+            timestamp: "à l'instant",
+            read: false
+        };
+        setNotifications(prev => [newNotification, ...prev]);
+    }, 7000); // Se déclenche après 7 secondes
+
+    return () => clearTimeout(timer);
+}, []);
+
+
+  /**
    * Rend le composant de la page appropriée en fonction de l'état `activePage`.
    * C'est un simple système de routage côté client basé sur l'état.
    * @returns {React.ReactElement} Le composant de la page à afficher.
@@ -105,9 +127,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ user, onLogout }) => 
       case 'Épidémiologie':
         return <EpidemiologiePage user={user} />;
       case 'Référencements':
-        return <ReferencementsPage />;
+        return <ReferencementsPage user={user} />;
       case 'Facturation':
         return <FacturationPage />;
+      case 'Campagnes':
+        return <CampagnesPage user={user} />;
       // Super Admin & Admin Local pages
       case 'Établissements':
         return <EtablissementsPage user={user} />;

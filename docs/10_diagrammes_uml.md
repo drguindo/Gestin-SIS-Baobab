@@ -2,327 +2,223 @@
 
 ## 10.1. Introduction
 
-L'Unified Modeling Language (UML) est une norme de modélisation graphique utilisée en génie logiciel pour visualiser, spécifier, construire et documenter les artefacts d'un système. Les diagrammes suivants ont été créés en utilisant la syntaxe **Mermaid**, ce qui permet de les intégrer directement dans cette documentation Markdown. Ils offrent une vue formelle et académique de l'architecture, des fonctionnalités et des interactions au sein de l'application SIS.
+Cette section présente une modélisation formelle de l'application via des diagrammes UML. Ces diagrammes, générés avec la syntaxe **Mermaid**, ont été mis à jour pour refléter l'architecture actuelle, y compris les fonctionnalités de référencement, de facturation et de gestion des campagnes. Ils offrent une vue académique précise du système.
 
 ---
 
 ## 10.2. Diagramme de Cas d'Utilisation
 
-Ce diagramme illustre les interactions entre les acteurs (utilisateurs) et les fonctionnalités majeures du système, en respectant la pyramide sanitaire.
+Ce diagramme illustre les interactions entre les acteurs et les fonctionnalités clés, en intégrant les nouveaux modules.
 
 **Acteurs :**
--   **Agent de Santé** : Acteur général représentant le personnel de terrain (rôles `SIH`, `SIS_CSREF`, `SIS_CSCOM`, `SIS_CABINET`).
--   **Admin Local** : Acteur responsable de la configuration de son établissement.
--   **Superviseur National** : Acteur avec une vue globale sur le système (`SUPER_ADMIN`, `MINISTERE_SIS`).
+-   **Agent Opérationnel** : Personnel de terrain (`SIH`, `SIS_CSCOM`, `SIS_CABINET`).
+-   **Coordinateur de District** : Rôle de supervision locale (`SIS_CSREF`, `ADMIN_LOCAL`).
+-   **Superviseur National** : Vue d'ensemble de la plateforme (`SUPER_ADMIN`, `MINISTERE_SIS`).
 
 ```mermaid
 graph TD
     subgraph "Système d'Information Sanitaire (SIS)"
         direction LR
         
-        subgraph "Module Clinique"
+        subgraph "Gestion Clinique"
             UC1[Gérer Dossiers Patients]
             UC2[Gérer Consultations]
             UC3[Gérer Hospitalisations]
-            UC4[Gérer Référencements]
+            UC4[Initier Référencement]
+            UC5[Gérer Contre-Référence]
         end
         
-        subgraph "Module Santé Publique"
-            UC5[Déclarer Cas Épidémiologiques]
-            UC6[Générer Rapports]
+        subgraph "Santé Publique & Coordination"
+            UC6[Déclarer Cas Épidémiologiques]
+            UC7[Planifier Campagne]
+            UC8[Participer à une Campagne]
+            UC9[Évaluer Campagne]
         end
         
-        subgraph "Module Support"
-            UC7[Gérer Ressources (Lits, Équipements)]
-            UC8[Gérer Facturation]
-            UC9[Consulter Tableau de Bord]
-        end
-
-        subgraph "Module Administration Locale"
-            UC10[Gérer Utilisateurs de l'établissement]
-            UC11[Configurer Services & Spécialités]
-            UC12[Configurer Partage de Données]
-        end
-        
-        subgraph "Module Supervision Nationale"
-            UC13[Superviser Données Nationales]
-            UC14[Gérer tous les Établissements]
-            UC15[Gérer tous les Utilisateurs]
-            UC16[Gérer Modules Applicatifs]
+        subgraph "Gestion Administrative"
+            UC10[Gérer Facturation]
+            UC11[Gérer Utilisateurs Locaux]
+            UC12[Superviser Données Globales]
         end
     end
 
-    actor Agent as Agent de Santé
-    actor Admin as Admin Local
+    actor Agent as Agent Opérationnel
+    actor Coordinateur as Coordinateur de District
     actor Superviseur as Superviseur National
-
-    Agent --|> Admin
-    Admin --|> Superviseur
+    
+    Coordinateur --|> Agent
+    Superviseur --|> Coordinateur
 
     Agent --> UC1
     Agent --> UC2
     Agent --> UC3
     Agent --> UC4
-    Agent --> UC5
-    Agent --> UC9
+    Agent --> UC6
+    Agent --> UC8
+    Agent --> UC10
     
-    Admin --> UC6
-    Admin --> UC7
-    Admin --> UC8
-    Admin --> UC10
-    Admin --> UC11
-    Admin --> UC12
+    Coordinateur --> UC5
+    Coordinateur --> UC7
+    Coordinateur --> UC9
+    Coordinateur --> UC11
 
-    Superviseur --> UC13
-    Superviseur --> UC14
-    Superviseur --> UC15
-    Superviseur --> UC16
+    Superviseur --> UC12
     
-    UC2 -.-> UC1 : <<include>>
-    UC3 -.-> UC1 : <<include>>
-    UC15 -.-> UC10 : <<extend>>
+    UC5 -.-> UC4 : <<extend>>
+    UC8 -.-> UC7 : <<include>>
+    UC9 -.-> UC7 : <<include>>
 ```
 
 ---
 
-## 10.3. Diagramme de Packages
+## 10.3. Diagramme de Classes (Modèle de Données Enrichi)
 
-Ce diagramme montre l'organisation du code source en modules logiques (packages) et leurs dépendances, reflétant la structure des dossiers dans `/src`.
-
-```mermaid
-graph TD
-    subgraph "Code Source (src)"
-        P_App[App.tsx]
-        P_Types[types.ts]
-        
-        subgraph "hooks"
-            P_Hooks[useModal.ts]
-        end
-
-        subgraph "components"
-            P_UI[ui]
-            P_Layout[layout]
-            P_Pages[pages]
-        end
-
-        subgraph "pages"
-            P_Admin[admin]
-            P_Dashboard[DashboardPage.tsx]
-            P_Consultations[ConsultationsPage.tsx]
-        end
-    end
-    
-    P_App --> P_Layout
-    P_App -- "gère l'état d'authentification" --> P_Types
-    
-    P_Layout -- "affiche" --> P_Pages
-    P_Layout -- "utilise" --> P_UI
-    
-    P_Pages -- "contient" --> P_Admin
-    P_Pages -- "contient" --> P_Dashboard
-    P_Pages -- "contient" --> P_Consultations
-
-    P_Pages -- "utilise" --> P_UI
-    P_Pages -- "utilise" --> P_Hooks
-    P_Pages -- "dépend de" --> P_Types
-```
-
----
-
-## 10.4. Diagramme de Classes (Complet)
-
-Ce diagramme modélise les entités de données (`types.ts`) ainsi que les principaux composants React, illustrant les relations entre la structure des données et l'interface utilisateur.
+Ce diagramme modélise les entités de données (`types.ts`) incluant les nouvelles structures pour les modules implémentés.
 
 ```mermaid
 classDiagram
     direction TB
     
-    class Enum {
-        <<Enumeration>>
-    }
-    
-    class UserRole {
-        <<Enumeration>>
-        SIH
-        SIS_CSREF
-        SIS_CSCOM
-        SUPER_ADMIN
-        ADMIN_LOCAL
-        ...
-    }
-    
-    class NotificationType {
-        <<Enumeration>>
-        STOCK
-        ADMISSION
-        SYSTEM
-    }
-
     class User {
-      +id: number
       +name: string
       +role: UserRole
       +establishment: string
     }
-
-    class Etablissement {
-        +name: string
-        +type: string
-        +location: string
-    }
-
-    class Consultation {
+    
+    class Patient {
       +id: string
-      +patientName: string
-      +date: string
-      +diagnosis: string
+      +name: string
+      +telephone: string
     }
     
-    class Hospitalisation {
+    class Referencement {
       +id: string
-      +patientName: string
-      +admissionDate: string
       +status: string
     }
-
-    class EpidemiologyCase {
+    
+    class ReferencementUpdate {
+      +status: string
+      +date: string
+      +notes: string
+    }
+    
+    class Facture {
       +id: string
-      +disease: string
-      +caseDate: string
+      +total: number
+      +status: string
     }
     
-    class Service {
-        +name: string
-        +head: string
-    }
-
-    class Specialite {
-        +name: string
+    class LigneFacture {
+      +description: string
+      +montant: number
     }
     
-    class Notification {
-      +id: number
-      +type: NotificationType
-      +title: string
-      +message: string
-      +read: boolean
+    class ActeMedial {
+      +description: string
+      +prix: number
     }
     
-    class ReactComponent {
-      <<Component>>
+    class Campagne {
+      +id: string
+      +nom: string
+      +status: string
     }
     
-    class ConsultationsPage {
-        <<Component>>
-        -consultations: Consultation[]
-        -filters: object
-        +handleSave()
-        +handleDelete()
+    class CampaignProgress {
+      +establishment: string
+      +target: number
+      +achieved: number
     }
     
-    class Modal {
-        <<Component>>
-        +isOpen: boolean
-        +title: string
-    }
+    User "1" -- "0..*" Referencement : initie / met à jour
+    User "1" -- "0..*" Facture : crée
+    User "1" -- "0..*" Campagne : planifie
     
-    class useModal {
-        <<Hook>>
-        +isOpen: boolean
-        +openModal()
-        +closeModal()
-    }
-
-    Etablissement "1" -- "0..*" User : emploie
-    Etablissement "1" -- "1..*" Service : est composé de
-    Service "1" -- "0..*" Specialite : offre
+    Referencement "1" *-- "1..*" ReferencementUpdate : a un historique de
     
-    User "1" -- "0..*" Consultation : enregistre
-    User "1" -- "0..*" Hospitalisation : gère
-    User "1" -- "0..*" EpidemiologyCase : déclare
-
-    ConsultationsPage "1" o-- "1" useModal : utilise
-    ConsultationsPage "1" o-- "1" Modal : affiche
+    Facture "1" -- "1" Patient : concerne
+    Facture "1" *-- "1..*" LigneFacture : contient
+    LigneFacture "1" -- "1" ActeMedial : est basée sur
     
-    User ..> UserRole
-    Notification ..> NotificationType
+    Campagne "1" *-- "1..*" CampaignProgress : a une progression pour
 ```
 
 ---
 
-## 10.5. Diagrammes de Séquence
+## 10.4. Diagrammes de Séquence
 
-### 10.5.1. Séquence : Ajout d'une Déclaration Épidémiologique
+### 10.4.1. Séquence : Flux de Référencement et Contre-Référence
 
-Ce diagramme montre le flux d'interactions lorsqu'un agent de santé déclare un nouveau cas épidémiologique.
+Ce diagramme montre le processus collaboratif entre un CSCOM et un CSRéf.
 
 ```mermaid
 sequenceDiagram
-    actor Agent as Agent de Santé
-    participant Page as EpidemiologiePage
-    participant Hook as useModal
-    participant ModalUI as Modal
-    participant TableUI as Table
+    actor AgentCSCOM as Agent (CSCOM)
+    participant PageRefCSCOM as ReferencementsPage (CSCOM)
+    participant PageRefCSREF as ReferencementsPage (CSRéf)
+    actor AgentCSREF as Agent (CSRéf)
 
-    Agent->>Page: Clic sur "Déclarer un cas"
-    activate Page
-    Page->>Hook: openModal()
-    activate Hook
-    Hook-->>Page: Met à jour `isOpen` à `true`
-    deactivate Hook
-    Page->>ModalUI: Affiche le modal (isOpen=true)
-    activate ModalUI
+    AgentCSCOM->>PageRefCSCOM: Initie un référencement
+    activate PageRefCSCOM
+    PageRefCSCOM->>PageRefCSCOM: Ouvre le modal de création
+    AgentCSCOM->>PageRefCSCOM: Remplit et enregistre le formulaire
+    PageRefCSCOM->>PageRefCSCOM: Ajoute le nouveau référencement (statut: "En attente")
+    deactivate PageRefCSCOM
     
-    ModalUI-->>Agent: Affiche le formulaire de déclaration
-    Agent->>ModalUI: Remplit les données du cas et clique "Enregistrer"
+    Note right of AgentCSREF: Plus tard...
+
+    AgentCSREF->>PageRefCSREF: Se connecte et consulte les référencements
+    activate PageRefCSREF
+    PageRefCSREF-->>AgentCSREF: Affiche le référencement en attente
     
-    ModalUI->>Page: Appelle `handleSave(formData)`
-    deactivate ModalUI
+    AgentCSREF->>PageRefCSREF: Met à jour le statut
+    PageRefCSREF->>PageRefCSREF: Ouvre le modal de mise à jour
+    AgentCSREF->>PageRefCSREF: Change le statut à "Accepté" et ajoute une note
+    PageRefCSREF->>PageRefCSREF: Met à jour le référencement et son historique
+    deactivate PageRefCSREF
     
-    Page->>Page: Met à jour l'état `cases` avec le nouveau cas
-    Page->>Hook: closeModal()
-    activate Hook
-    Hook-->>Page: Met à jour `isOpen` à `false`
-    deactivate Hook
-    
-    Page-->>TableUI: Re-rendu avec la liste des cas mise à jour
-    activate TableUI
-    TableUI-->>Agent: Affiche le nouveau cas dans le tableau
-    deactivate TableUI
-    deactivate Page
+    Note right of AgentCSCOM: Encore plus tard...
+
+    AgentCSCOM->>PageRefCSCOM: Consulte le référencement
+    activate PageRefCSCOM
+    PageRefCSCOM-->>AgentCSCOM: Affiche le statut mis à jour ("Accepté") et la note (contre-référence)
+    deactivate PageRefCSCOM
 ```
 
-### 10.5.2. Séquence : Supervision des Données par un Administrateur National
+### 10.4.2. Séquence : Flux de Planification et Suivi d'une Campagne
 
-Ce diagramme illustre comment un superviseur national filtre les consultations pour visualiser les données d'un établissement spécifique.
+Ce diagramme illustre la coordination entre un superviseur et un agent de terrain pour une campagne de santé publique.
 
 ```mermaid
 sequenceDiagram
-    actor Superviseur as Superviseur National
-    participant Page as ConsultationsPage
-    participant EstFilter as Filtre Établissement (Select)
-    participant AdvFilters as Filtres Avancés
-    participant TableUI as Table
+    actor Superviseur as Superviseur (CSRéf)
+    participant PageCampSup as CampagnesPage (Vue Superviseur)
+    participant PageCampOp as CampagnesPage (Vue Opérationnelle)
+    actor Agent as Agent (CSCOM)
 
-    Superviseur->>Page: Accède à la page des consultations
-    activate Page
-    Page->>Page: Affiche la vue Superviseur (toutes données, filtre principal visible)
+    Superviseur->>PageCampSup: Clique sur "Planifier une campagne"
+    activate PageCampSup
+    PageCampSup->>PageCampSup: Ouvre le modal de planification
+    Superviseur->>PageCampSup: Définit le nom, les dates, les participants et les objectifs
+    PageCampSup->>PageCampSup: Enregistre la nouvelle campagne (statut: "Planifiée")
+    deactivate PageCampSup
     
-    Superviseur->>EstFilter: Sélectionne "Hôpital Sominé Dolo"
-    activate EstFilter
-    EstFilter->>Page: Appelle `handleEstablishmentFilterChange("Hôpital Sominé Dolo")`
-    deactivate EstFilter
+    Note right of Agent: Plus tard...
     
-    Page->>Page: Met à jour l'état `filters`
-    Page->>AdvFilters: Affiche les filtres avancés pour l'établissement sélectionné
-    activate AdvFilters
-    deactivate AdvFilters
+    Agent->>PageCampOp: Se connecte et consulte les campagnes
+    activate PageCampOp
+    PageCampOp-->>Agent: Affiche la campagne planifiée à laquelle il doit participer
     
-    Page->>Page: `useMemo` recalcule `filteredData` basé sur les nouveaux filtres
+    Agent->>PageCampOp: Clique sur "Rapporter la progression"
+    PageCampOp->>PageCampOp: Ouvre le modal de rapport
+    Agent->>PageCampOp: Saisit le nombre de personnes atteintes
+    PageCampOp->>PageCampOp: Met à jour la progression de son établissement pour la campagne
+    deactivate PageCampOp
     
-    Page-->>TableUI: Re-rendu avec les données de l'hôpital Sominé Dolo
-    activate TableUI
-    TableUI-->>Superviseur: Affiche uniquement les consultations de l'hôpital sélectionné
-    deactivate TableUI
-    deactivate Page
+    Note right of Superviseur: Encore plus tard...
+    
+    Superviseur->>PageCampSup: Consulte le tableau de bord des campagnes
+    activate PageCampSup
+    PageCampSup-->>Superviseur: Affiche la campagne avec la barre de progression globale mise à jour
+    deactivate PageCampSup
 ```

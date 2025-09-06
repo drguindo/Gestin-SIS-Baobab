@@ -10,26 +10,16 @@ import Modal from '../ui/Modal';
 import { EyeIcon, PencilIcon, PlusIcon } from '../ui/icons';
 import SearchInput from '../ui/SearchInput';
 import { useModal } from '../../hooks/useModal';
-
-/**
- * Type définissant la structure d'un objet patient.
- * @type Patient
- */
-type Patient = {
-    id: string;
-    name: string;
-    birthDate: string;
-    gender: 'M' | 'F';
-};
+import type { Patient } from '../../types';
 
 /** Données initiales simulées pour la liste des patients. */
 const initialPatients: Patient[] = [
-    { id: "P001", name: "Moussa Traoré", birthDate: "15/05/1985", gender: "M" },
-    { id: "P002", name: "Awa Diarra", birthDate: "22/11/1992", gender: "F" },
-    { id: "P003", name: "Sidi Koné", birthDate: "03/01/2001", gender: "M" },
-    { id: "P004", name: "Fatoumata Kéita", birthDate: "18/07/1988", gender: "F" },
-    { id: "P005", name: "Ibrahim Diallo", birthDate: "30/09/1976", gender: "M" },
-    { id: "P006", name: "Mariam Sangaré", birthDate: "09/02/2015", gender: "F" },
+    { id: "P001", name: "Moussa Traoré", birthDate: "1985-05-15", gender: "M", telephone: "76000001" },
+    { id: "P002", name: "Awa Diarra", birthDate: "1992-11-22", gender: "F", telephone: "76000002" },
+    { id: "P003", name: "Sidi Koné", birthDate: "2001-01-03", gender: "M", telephone: "76000003" },
+    { id: "P004", name: "Fatoumata Kéita", birthDate: "1988-07-18", gender: "F", telephone: "76000004" },
+    { id: "P005", name: "Ibrahim Diallo", birthDate: "1976-09-30", gender: "M", telephone: "76000005" },
+    { id: "P006", name: "Mariam Sangaré", birthDate: "2015-02-09", gender: "F", telephone: "76000006" },
 ];
 
 /**
@@ -60,13 +50,14 @@ const PatientsPage: React.FC = () => {
             name: formData.get('fullName') as string,
             birthDate: formData.get('birthDate') as string,
             gender: formData.get('gender') as 'M' | 'F',
+            telephone: formData.get('telephone') as string,
         };
-        setPatients(prev => [...prev, newPatient]);
+        setPatients(prev => [newPatient, ...prev]);
         closeModal();
     };
 
     /** En-têtes pour le tableau des patients. */
-    const tableHeaders = ["Patient ID", "Nom Complet", "Date de Naissance", "Sexe", "Actions"];
+    const tableHeaders = ["Patient ID", "Nom Complet", "Date de Naissance", "Sexe", "Téléphone", "Actions"];
     
     /** Filtre les données des patients en fonction du terme de recherche. */
     const filteredData = useMemo(() => {
@@ -83,6 +74,7 @@ const PatientsPage: React.FC = () => {
         patient.name,
         patient.birthDate,
         patient.gender,
+        patient.telephone,
         <div className="flex items-center space-x-2">
             <button className="text-primary hover:text-primary-700 p-1 rounded-md transition-colors duration-200" onClick={() => alert(`Visualisation du patient ${patient.id}`)}>
                 <EyeIcon className="w-5 h-5" />
@@ -124,6 +116,10 @@ const PatientsPage: React.FC = () => {
                     <div>
                         <label htmlFor="birthDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Date de naissance</label>
                         <input type="date" id="birthDate" name="birthDate" required className="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-primary focus:border-primary" />
+                    </div>
+                     <div>
+                        <label htmlFor="telephone" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Téléphone</label>
+                        <input type="tel" id="telephone" name="telephone" required className="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-primary focus:border-primary" />
                     </div>
                     <div>
                         <label htmlFor="gender" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Sexe</label>

@@ -43,6 +43,37 @@ export interface User {
 }
 
 /**
+ * Représente un patient dans le système.
+ * @interface Patient
+ */
+export interface Patient {
+  /** Identifiant unique du patient. */
+  id: string;
+  /** Nom complet du patient. */
+  name: string;
+  /** Date de naissance. */
+  birthDate: string;
+  /** Sexe du patient. */
+  gender: 'M' | 'F';
+  /** Numéro de téléphone du patient. */
+  telephone: string;
+}
+
+/**
+ * Représente un acte médical avec son prix.
+ * @interface ActeMedial
+ */
+export interface ActeMedial {
+    /** Identifiant unique de l'acte. */
+    id: string;
+    /** Description de l'acte. */
+    description: string;
+    /** Prix de l'acte en XOF. */
+    prix: number;
+}
+
+
+/**
  * Structure de données pour les cartes de statistiques du tableau de bord.
  * @interface StatsData
  */
@@ -162,6 +193,45 @@ export interface Hospitalisation {
 }
 
 /**
+ * Représente une mise à jour de statut dans l'historique d'un référencement.
+ * @interface ReferencementUpdate
+ */
+export interface ReferencementUpdate {
+  /** Le nouveau statut du référencement. */
+  status: 'En attente' | 'Accepté' | 'Refusé' | 'Transféré';
+  /** La date de la mise à jour. */
+  date: string;
+  /** L'utilisateur ou le système ayant effectué la mise à jour. */
+  updatedBy: string;
+  /** Notes ou commentaires sur la mise à jour (ex: "Patient pris en charge"). */
+  notes?: string;
+}
+
+/**
+ * Représente un référencement d'un patient entre deux établissements.
+ * @interface Referencement
+ */
+export interface Referencement {
+  /** Identifiant unique du référencement. */
+  id: string;
+  /** Nom du patient référé. */
+  patientName: string;
+  /** Date de la demande initiale de référencement. */
+  date: string;
+  /** Établissement d'origine du patient. */
+  originEstablishment: string;
+  /** Établissement de destination du patient. */
+  destinationEstablishment: string;
+  /** Motif médical du référencement. */
+  reason: string;
+  /** Le statut actuel et le plus récent du référencement. */
+  status: 'En attente' | 'Accepté' | 'Refusé' | 'Transféré';
+  /** Historique des mises à jour de statut pour le suivi et la contre-référence. */
+  updateHistory: ReferencementUpdate[];
+}
+
+
+/**
  * Représente un service médical au sein d'un établissement.
  * @interface Service
  */
@@ -208,4 +278,43 @@ export interface EpidemiologyCase {
   location: string;
   /** Établissement déclarant. */
   establishment: string;
+}
+
+/** Représente une ligne sur une facture. */
+export interface LigneFacture {
+    id: number;
+    description: string;
+    montant: number;
+}
+
+/** Représente une facture. */
+export interface Facture {
+    id: string;
+    patientId: string;
+    patientName: string;
+    date: string;
+    lignes: LigneFacture[];
+    total: number;
+    status: 'Brouillon' | 'Émise' | 'Payée';
+    paymentMethod: 'Espèces' | 'Mobile Money' | 'Assurance' | 'Autre';
+}
+
+/** Structure de suivi de la progression d'une campagne par établissement. */
+export interface CampaignProgress {
+    establishment: string;
+    target: number; // Objectif chiffré
+    achieved: number; // Nombre de personnes atteintes
+}
+
+/** Représente une campagne de santé publique avec un suivi détaillé. */
+export interface Campagne {
+    id: string;
+    nom: string;
+    type: 'Vaccination' | 'Sensibilisation' | 'Dépistage';
+    coordinatingBody: string; // Organisme coordinateur (ex: CSRéf)
+    dateDebut: string;
+    dateFin: string;
+    targetPopulation: number; // Cible globale de la campagne
+    status: 'Planifiée' | 'En cours' | 'Terminée';
+    progress: CampaignProgress[]; // Suivi par établissement participant
 }

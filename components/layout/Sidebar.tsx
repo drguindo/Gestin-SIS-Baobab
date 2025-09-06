@@ -6,7 +6,7 @@
 import React from 'react';
 import type { User } from '../../types';
 import { UserRole } from '../../types';
-import { ChartPieIcon, DocumentTextIcon, UsersIcon, GlobeAltIcon, ArrowTrendingUpIcon, CreditCardIcon, StethoscopeIcon, XMarkIcon, BedIcon, WrenchScrewdriverIcon, DocumentChartBarIcon, BuildingStorefrontIcon, PuzzlePieceIcon, CogIcon, ShareIcon } from '../ui/icons';
+import { ChartPieIcon, DocumentTextIcon, UsersIcon, GlobeAltIcon, ArrowTrendingUpIcon, CreditCardIcon, StethoscopeIcon, XMarkIcon, BedIcon, WrenchScrewdriverIcon, DocumentChartBarIcon, BuildingStorefrontIcon, PuzzlePieceIcon, CogIcon, ShareIcon, MegaphoneIcon } from '../ui/icons';
 
 /**
  * Props pour le composant Sidebar.
@@ -40,9 +40,9 @@ const commonLinks = [
 const roleLinks: Record<UserRole, { name: string; icon: React.ReactNode }[]> = {
   [UserRole.SUPER_ADMIN]: [
     { name: 'Tableau de bord', icon: <ChartPieIcon className="w-6 h-6" /> },
-    { name: 'Consultations', icon: <DocumentTextIcon className="w-6 h-6" /> },
-    { name: 'Hospitalisations', icon: <BedIcon className="w-6 h-6" /> },
+    { name: 'Référencements', icon: <ArrowTrendingUpIcon className="w-6 h-6" /> },
     { name: 'Épidémiologie', icon: <GlobeAltIcon className="w-6 h-6" /> },
+    { name: 'Campagnes', icon: <MegaphoneIcon className="w-6 h-6" /> },
     { name: 'Établissements', icon: <BuildingStorefrontIcon className="w-6 h-6" /> },
     { name: 'Utilisateurs', icon: <UsersIcon className="w-6 h-6" /> },
     { name: 'Services', icon: <CogIcon className="w-6 h-6" /> },
@@ -53,18 +53,20 @@ const roleLinks: Record<UserRole, { name: string; icon: React.ReactNode }[]> = {
     { name: 'Tableau de bord', icon: <ChartPieIcon className="w-6 h-6" /> },
     { name: 'Consultations', icon: <DocumentTextIcon className="w-6 h-6" /> },
     { name: 'Hospitalisations', icon: <BedIcon className="w-6 h-6" /> },
+    { name: 'Référencements', icon: <ArrowTrendingUpIcon className="w-6 h-6" /> },
     { name: 'Épidémiologie', icon: <GlobeAltIcon className="w-6 h-6" /> },
+    { name: 'Campagnes', icon: <MegaphoneIcon className="w-6 h-6" /> },
     { name: 'Services', icon: <CogIcon className="w-6 h-6" /> },
     { name: 'Utilisateurs', icon: <UsersIcon className="w-6 h-6" /> },
     { name: 'Spécialités', icon: <StethoscopeIcon className="w-6 h-6" /> },
     { name: 'Partage de données', icon: <ShareIcon className="w-6 h-6" /> },
   ],
   [UserRole.SIH]: [
-    { name: 'Tableau de bord', icon: <ChartPieIcon className="w-6 h-6" /> },
-    { name: 'Consultations', icon: <DocumentTextIcon className="w-6 h-6" /> },
-    { name: 'Patients', icon: <UsersIcon className="w-6 h-6" /> },
+    ...commonLinks,
     { name: 'Hospitalisations', icon: <BedIcon className="w-6 h-6" /> },
+    { name: 'Référencements', icon: <ArrowTrendingUpIcon className="w-6 h-6" /> },
     { name: 'Épidémiologie', icon: <GlobeAltIcon className="w-6 h-6" /> },
+    { name: 'Campagnes', icon: <MegaphoneIcon className="w-6 h-6" /> },
     { name: 'Ressources', icon: <WrenchScrewdriverIcon className="w-6 h-6" /> },
     { name: 'Rapports', icon: <DocumentChartBarIcon className="w-6 h-6" /> },
   ],
@@ -73,23 +75,28 @@ const roleLinks: Record<UserRole, { name: string; icon: React.ReactNode }[]> = {
     { name: 'Hospitalisations', icon: <BedIcon className="w-6 h-6" /> },
     { name: 'Référencements', icon: <ArrowTrendingUpIcon className="w-6 h-6" /> },
     { name: 'Épidémiologie', icon: <GlobeAltIcon className="w-6 h-6" /> },
+    { name: 'Campagnes', icon: <MegaphoneIcon className="w-6 h-6" /> },
   ],
   [UserRole.SIS_CSCOM]: [
     ...commonLinks,
     { name: 'Hospitalisations', icon: <BedIcon className="w-6 h-6" /> },
-     { name: 'Épidémiologie', icon: <GlobeAltIcon className="w-6 h-6" /> },
+    { name: 'Référencements', icon: <ArrowTrendingUpIcon className="w-6 h-6" /> },
+    { name: 'Épidémiologie', icon: <GlobeAltIcon className="w-6 h-6" /> },
+    { name: 'Campagnes', icon: <MegaphoneIcon className="w-6 h-6" /> },
   ],
   [UserRole.SIS_CABINET]: [
     ...commonLinks,
-    { name: 'Hospitalisations', icon: <BedIcon className="w-6 h-6" /> },
-    { name: 'Épidémiologie', icon: <GlobeAltIcon className="w-6 h-6" /> },
+    { name: 'Référencements', icon: <ArrowTrendingUpIcon className="w-6 h-6" /> },
     { name: 'Facturation', icon: <CreditCardIcon className="w-6 h-6" /> },
+    { name: 'Campagnes', icon: <MegaphoneIcon className="w-6 h-6" /> },
   ],
   [UserRole.MINISTERE_SIS]: [
     { name: 'Tableau de bord', icon: <ChartPieIcon className="w-6 h-6" /> },
     { name: 'Consultations', icon: <DocumentTextIcon className="w-6 h-6" /> },
     { name: 'Hospitalisations', icon: <BedIcon className="w-6 h-6" /> },
     { name: 'Épidémiologie', icon: <GlobeAltIcon className="w-6 h-6" /> },
+    { name: 'Référencements', icon: <ArrowTrendingUpIcon className="w-6 h-6" /> },
+    { name: 'Campagnes', icon: <MegaphoneIcon className="w-6 h-6" /> },
   ],
 };
 

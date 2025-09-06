@@ -54,3 +54,12 @@ Le style est géré exclusivement par **Tailwind CSS**.
 -   **Approche Utility-First** : Le style est appliqué directement dans le JSX des composants via des classes utilitaires, ce qui accélère le développement et maintient la cohérence.
 -   **Configuration Centralisée** : Le thème de l'application (couleurs primaires, polices, etc.) est configuré dans le fichier `index.html` via un objet de configuration `tailwind.config`.
 -   **Mode Sombre** : Le support du mode sombre est intégré en utilisant le variant `dark:` de Tailwind, ce qui permet de styler facilement l'application pour les deux thèmes.
+
+## 2.7. Statut de l'Implémentation : Prototype Frontend
+
+Il est important de noter que l'implémentation actuelle est un **prototype frontend de haute fidélité**. L'architecture technique complète, incluant un backend (ex: FastAPI) et une base de données (ex: PostgreSQL), est modélisée dans les documents de conception mais n'est pas construite.
+
+-   **Données** : Toutes les données sont simulées (`mock data`) et stockées en mémoire côté client.
+-   **Interactions Serveur** : Les interactions avec un serveur (API REST, WebSockets, Polling) sont **simulées** dans le frontend pour démontrer le comportement attendu de l'application et valider l'expérience utilisateur.
+
+Ce prototype sert de base solide et de "preuve de concept" pour le développement de l'application full-stack complète.
