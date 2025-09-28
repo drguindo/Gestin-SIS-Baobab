@@ -6,6 +6,17 @@ L'organisation des fichiers et des dossiers est conçue pour être intuitive et 
 
 ```plaintext
 /
+├── docs/                     # Documentation complète du projet.
+│   ├── Maintenance/          # Guides pour la maintenance et le développement.
+│   │   ├── 1_getting_started_dev.md
+│   │   ├── 2_project_architecture.md
+│   │   ├── 3_frontend_guide.md
+│   │   ├── 4_backend_guide.md
+│   │   ├── 5_database_guide.md
+│   │   ├── 6_testing_and_quality.md
+│   │   └── 7_deployment_guide.md
+│   ├── 1_introduction.md
+│   ├── ... (autres fichiers .md) ...
 ├── public/                     # Fichiers statiques (icônes, etc.)
 ├── src/
 │   ├── components/
@@ -47,13 +58,9 @@ L'organisation des fichiers et des dossiers est conçue pour être intuitive et 
 │   │       ├── Table.tsx
 │   │       ├── ToggleSwitch.tsx
 │   │       └── icons.tsx       # Collection d'icônes SVG.
-│   ├── docs/                   # Documentation complète du projet.
-│   │   ├── 1_introduction.md
-│   │   ├── ... (autres fichiers .md) ...
 │   ├── hooks/
 │   │   └── useModal.ts         # Hook personnalisé pour gérer l'état des modaux.
 │   ├── App.tsx                 # Composant racine de l'application.
-│   ├── index.css               # Styles globaux (si nécessaire).
 │   ├── index.tsx               # Point d'entrée de l'application React.
 │   └── types.ts                # Définitions des types TypeScript globaux.
 │
@@ -66,6 +73,8 @@ L'organisation des fichiers et des dossiers est conçue pour être intuitive et 
 
 ## 4.2. Description des Dossiers Clés
 
+-   **`docs/`**: Contient toute la documentation technique et fonctionnelle du projet.
+    -   **`Maintenance/`**: Une section dédiée aux développeurs, contenant des guides complets pour l'installation, la compréhension de l'architecture, la maintenance et le déploiement de l'application.
 -   **`src/`**: Contient tout le code source de l'application.
     -   **`components/`**: Le cœur de l'interface utilisateur. Il est subdivisé par fonctionnalité ou type de composant pour une meilleure organisation.
         -   `auth/`: Composants liés à l'authentification.
@@ -73,7 +82,6 @@ L'organisation des fichiers et des dossiers est conçue pour être intuitive et 
         -   `layout/`: Composants qui structurent la mise en page générale de l'application.
         -   `pages/`: Composants "intelligents" qui représentent une vue ou une page complète de l'application. La logique métier principale y réside. Le sous-dossier `admin/` regroupe les pages réservées aux administrateurs.
         -   `ui/`: Une bibliothèque de composants de présentation ("dumb components") réutilisables dans toute l'application. Ces composants sont conçus pour être génériques et configurables via leurs `props`.
-    -   **`docs/`**: Contient cette documentation technique structurée au format Markdown.
     -   **`hooks/`**: Contient les hooks React personnalisés qui encapsulent une logique réutilisable (par exemple, la gestion de l'état d'un modal).
 -   **`src/App.tsx`**: Le composant racine. Il gère l'état d'authentification et agit comme un aiguilleur principal, affichant soit la page de connexion, soit le tableau de bord principal.
 -   **`src/index.tsx`**: Le point d'entrée JavaScript/TypeScript. C'est ici que l'application React est "montée" dans le DOM du fichier `index.html`.

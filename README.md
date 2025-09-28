@@ -13,7 +13,9 @@ Ce module a été développé dans le cadre d'un projet de recherche académique
 -   **Styling** : Tailwind CSS
 -   **Visualisation de Données** : Recharts
 
-## 3. Documentation Complète
+## 3. Documentation
+
+### 3.1. Documentation Académique et Fonctionnelle
 
 Pour une compréhension approfondie de l'architecture, du modèle de données, des composants et des guides de reproductibilité, veuillez consulter la documentation structurée dans le répertoire `/docs`.
 
@@ -25,6 +27,12 @@ Pour une compréhension approfondie de l'architecture, du modèle de données, d
 -   [**6. Fonctionnalités Clés**](./docs/6_core_features.md) - Description approfondie des fonctionnalités majeures.
 -   [**7. Guide des Composants**](./docs/7_components_guide.md) - Documentation sur les composants React.
 -   [**8. Guide de Contribution**](./docs/8_contribution_guide.md) - Comment étendre et maintenir l'application.
+
+### 3.2. Guide de Maintenance et de Développement
+
+Pour les développeurs chargés de la maintenance et de l'évolution de l'application, une documentation technique complète est disponible. Elle fournit des instructions détaillées pour la configuration de l'environnement, la compréhension de l'architecture cible (frontend, backend, base de données), les tests et le déploiement.
+
+➡️ **Consulter le [Guide de Démarrage pour Développeurs](./docs/Maintenance/1_getting_started_dev.md)**
 
 ## 4. Démarrage Rapide
 

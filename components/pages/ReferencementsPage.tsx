@@ -11,7 +11,6 @@ import Table from '../ui/Table';
 import Modal from '../ui/Modal';
 import { useModal } from '../../hooks/useModal';
 import SearchInput from '../ui/SearchInput';
-// FIX: Import the missing CheckCircleIcon component.
 import { PlusIcon, PencilIcon, TrashIcon, EyeIcon, ClockIcon, ArrowTrendingUpIcon, CheckCircleIcon } from '../ui/icons';
 import Badge from '../ui/Badge';
 import StatsCard from '../dashboard/StatsCard';
@@ -269,7 +268,7 @@ const ReferencementsPage: React.FC<{ user: User }> = ({ user }) => {
                     </div>
                     <div>
                         <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Recherche</label>
-                        <SearchInput value={filters.search} onChange={(e) => handleFilterChange('search', e.target.value)} placeholder="Rechercher un patient ou un motif..." />
+                        <SearchInput value={filters.search} onChange={e => handleFilterChange('search', e.target.value)} placeholder="Rechercher un patient ou un motif..." />
                     </div>
                 </div>
                 <Table headers={tableHeaders} data={tableData} />
